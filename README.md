@@ -1,3 +1,3 @@
 # booking-manager-microservices
 
-TRUST 🚀✨
+TRUST YOURSELF 🚀✨
