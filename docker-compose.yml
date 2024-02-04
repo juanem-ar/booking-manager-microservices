@@ -1,0 +1,103 @@
+version: '3'
+services:
+  ##POSTGRESQL DATABASE FOR RENTAL-UNIT
+  db-rental-units:
+    container_name: db-rental-units
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ms_rental_units
+      POSTGRES_USER: Juanem
+      POSTGRES_PASSWORD: root
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+    command: -p 5432
+
+  ##POSTGRESQL DATABASE FOR BUSINESS-UNIT
+  db-business-units:
+    container_name: db-business-units
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ms_business_units
+      POSTGRES_USER: Juanem
+      POSTGRES_PASSWORD: root
+    ports:
+      - 5433:5433
+    expose:
+      - 5433
+    command: -p 5433
+
+  ##POSTGRESQL DATABASE FOR AVAILABILITY
+  db-availabilities:
+    container_name: db-availabilities
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ms_availabilities
+      POSTGRES_USER: Juanem
+      POSTGRES_PASSWORD: root
+    ports:
+      - 5434:5434
+    expose:
+      - 5434
+    command: -p 5434
+
+  ##ZOOKEEPER
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  ##MYSQL DATABASE FOR BOOKINGS
+  db-bookings:
+    container_name: db-bookings
+    image: mysql:latest
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ms_bookings
+      MYSQL_USER: Juanem
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+
+  ##MYSQL DATABASE FOR PAYMENTS
+  db-payments:
+    container_name: db-payments
+    image: mysql:latest
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ms_payments
+      MYSQL_USER: Juanem
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3307:3306
+    expose:
+      - 3307
+
+  ##KAFKA:
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    expose:
+      - 9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
