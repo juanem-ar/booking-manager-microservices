@@ -68,6 +68,18 @@
 			<version>2.16.4</version>
 		</dependency>
 		<!-- TRACING END -->
+		<!-- MAPSTRUCT BEGIN -->
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>1.5.5.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct-processor</artifactId>
+			<version>1.5.5.Final</version>
+		</dependency>
+		<!-- MAPSTRUCT END -->
 	</dependencies>
 	<build>
 		<plugins>
