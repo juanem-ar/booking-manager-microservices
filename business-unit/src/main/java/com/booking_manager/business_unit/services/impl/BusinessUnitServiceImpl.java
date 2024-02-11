@@ -26,6 +26,7 @@ public class BusinessUnitServiceImpl implements IBusinessUnitService {
         var entity = iBusinessUnitMapper.toEntity(dto);
         entity.setDeleted(false);
         var entitySaved = iBusinessUnitRepository.save(entity);
+        log.info("BusinessUnit added: {}", entitySaved);
         return iBusinessUnitMapper.toResponseDto(entitySaved);
     }
     @Override
@@ -33,6 +34,7 @@ public class BusinessUnitServiceImpl implements IBusinessUnitService {
         var entity = getBusinessUnitById(id);
         var entityMapped = iBusinessUnitMapper.updateEntity(dto, entity);
         var entitySaved = iBusinessUnitRepository.save(entityMapped);
+        log.info("BusinessUnit Updated: {}", entitySaved);
         return iBusinessUnitMapper.toResponseDto(entitySaved);
     }
     @Override
@@ -40,6 +42,7 @@ public class BusinessUnitServiceImpl implements IBusinessUnitService {
         var entity = getBusinessUnitById(id);
         entity.setDeleted(true);
         iBusinessUnitRepository.save(entity);
+        log.info("BusinessUnit Deleted: {}", entity);
         return "¡Business Unit Deleted!";
     }
     public BusinessUnitEntity getBusinessUnitById(Long id) {
