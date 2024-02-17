@@ -10,6 +10,8 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -17,7 +19,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE business_entity SET deleted= true WHERE id=?")
+@SQLDelete(sql = "UPDATE business_unit SET deleted= true WHERE id=?")
 public class BusinessUnitEntity {
 
     @Id
@@ -31,5 +33,7 @@ public class BusinessUnitEntity {
     private LocalDateTime creationDate;
     @UpdateTimestamp
     private LocalDateTime updateDate;
-    private String owner;
+
+    @OneToMany(mappedBy = "businessUnit")
+    private List<RentalUnitEntity> rentalUnitList;
 }

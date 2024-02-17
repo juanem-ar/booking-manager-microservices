@@ -1,12 +1,12 @@
 version: '3'
 services:
-  ##POSTGRESQL DATABASE FOR RENTAL-UNIT
-  db-rental-units:
-    container_name: db-rental-units
+  ##POSTGRESQL DATABASE FOR BUSINESS
+  db-business-units:
+    container_name: db-business
     image: postgres:latest
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ms_rental_units
+      POSTGRES_DB: ms_business
       POSTGRES_USER: Juanem
       POSTGRES_PASSWORD: root
     ports:
@@ -14,21 +14,6 @@ services:
     expose:
       - 5432
     command: -p 5432
-
-  ##POSTGRESQL DATABASE FOR BUSINESS-UNIT
-  db-business-units:
-    container_name: db-business-units
-    image: postgres:latest
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ms_business_units
-      POSTGRES_USER: Juanem
-      POSTGRES_PASSWORD: root
-    ports:
-      - 5433:5433
-    expose:
-      - 5433
-    command: -p 5433
 
   ##POSTGRESQL DATABASE FOR AVAILABILITY
   db-availabilities:
@@ -40,10 +25,10 @@ services:
       POSTGRES_USER: Juanem
       POSTGRES_PASSWORD: root
     ports:
-      - 5434:5434
+      - 5433:5433
     expose:
-      - 5434
-    command: -p 5434
+      - 5433
+    command: -p 5433
 
   ##ZOOKEEPER
   zookeeper:

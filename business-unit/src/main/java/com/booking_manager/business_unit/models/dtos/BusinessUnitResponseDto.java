@@ -1,12 +1,13 @@
 package com.booking_manager.business_unit.models.dtos;
 
+import com.booking_manager.business_unit.models.entities.RentalUnitEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -14,11 +15,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class BusinessUnitResponseDto {
     private Long id;
-    private Boolean deleted = Boolean.FALSE;
     private String name;
     private String address;
     private String phoneNumber;
-    private String owner;
     private LocalDateTime creationDate;
     private LocalDateTime updateDate;
+    private List<RentalUnitEntity> rentalUnitList;
 }

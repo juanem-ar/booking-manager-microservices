@@ -4,18 +4,27 @@ import com.booking_manager.business_unit.mappers.IBusinessUnitMapper;
 import com.booking_manager.business_unit.models.dtos.BusinessUnitRequestDto;
 import com.booking_manager.business_unit.models.dtos.BusinessUnitResponseDto;
 import com.booking_manager.business_unit.models.entities.BusinessUnitEntity;
+import com.booking_manager.business_unit.models.entities.DeletedEntity;
+import com.booking_manager.business_unit.models.entities.RentalUnitEntity;
+import com.booking_manager.business_unit.models.enums.EDeletedEntity;
 import com.booking_manager.business_unit.repositories.IBusinessUnitRepository;
+import com.booking_manager.business_unit.repositories.IDeletedRepository;
 import com.booking_manager.business_unit.services.IBusinessUnitService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 @Service
+@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class BusinessUnitServiceImpl implements IBusinessUnitService {
     private final IBusinessUnitRepository iBusinessUnitRepository;
     private final IBusinessUnitMapper iBusinessUnitMapper;
+    private final IDeletedRepository iDeletedRepository;
 
     @Override
     public BusinessUnitResponseDto saveBusinessUnit(BusinessUnitRequestDto dto) {
@@ -25,6 +34,7 @@ public class BusinessUnitServiceImpl implements IBusinessUnitService {
         }
         var entity = iBusinessUnitMapper.toEntity(dto);
         entity.setDeleted(false);
+        entity.setRentalUnitList(new ArrayList<>());
         var entitySaved = iBusinessUnitRepository.save(entity);
         log.info("BusinessUnit added: {}", entitySaved);
         return iBusinessUnitMapper.toResponseDto(entitySaved);
@@ -32,28 +42,51 @@ public class BusinessUnitServiceImpl implements IBusinessUnitService {
     @Override
     public BusinessUnitResponseDto updateBusinessUnit(BusinessUnitRequestDto dto, Long id) {
         var entity = getBusinessUnitById(id);
-        var entityMapped = iBusinessUnitMapper.updateEntity(dto, entity);
-        var entitySaved = iBusinessUnitRepository.save(entityMapped);
-        log.info("BusinessUnit Updated: {}", entitySaved);
-        return iBusinessUnitMapper.toResponseDto(entitySaved);
+        if (!isDeleted(id)) {
+            var entityMapped = iBusinessUnitMapper.updateEntity(dto, entity);
+            var entitySaved = iBusinessUnitRepository.save(entityMapped);
+            log.info("BusinessUnit Updated: {}", entitySaved);
+            return iBusinessUnitMapper.toResponseDto(entitySaved);
+        }else {
+            throw new IllegalArgumentException("It's resource doesn't exists.");
+        }
     }
     @Override
     public String deleteBusinessUnit(Long id) {
         var entity = getBusinessUnitById(id);
-        entity.setDeleted(true);
-        iBusinessUnitRepository.save(entity);
-        log.info("BusinessUnit Deleted: {}", entity);
-        return "¡Business Unit Deleted!";
+        if (!isDeleted(id)) {
+            entity.setDeleted(true);
+            var entitySaved = iBusinessUnitRepository.save(entity);
+            var entityDeleted = DeletedEntity.builder()
+                    .eDeletedEntity(EDeletedEntity.RENTAL_UNIT)
+                    .idEntity(entity.getId())
+                    .build();
+            var registerDeleted = iDeletedRepository.save(entityDeleted);
+            log.info("Business Unit Deleted: {}", entitySaved);
+            log.info("New Entity Deleted: {}", registerDeleted);
+            return "¡Business Unit Deleted!";
+        }else {
+            throw new IllegalArgumentException("It's resource doesn't exists.");
+        }
     }
     public BusinessUnitEntity getBusinessUnitById(Long id) {
-        if (!iBusinessUnitRepository.existsById(id)){
+        if (existsBusinessUnitById(id) && !isDeleted(id)){
+            return iBusinessUnitRepository.getReferenceById(id);
+        }else{
             throw new IllegalArgumentException("There isn´t a business unit with that id.");
         }
-        return iBusinessUnitRepository.getReferenceById(id);
+    }
+    @Override
+    public boolean existsBusinessUnitById(Long id){
+        return iBusinessUnitRepository.existsById(id);
     }
     @Override
     public BusinessUnitResponseDto getBusinessUnitResponseDtoById(Long id) {
         var entity = getBusinessUnitById(id);
         return iBusinessUnitMapper.toResponseDto(entity);
+    }
+    public boolean isDeleted(Long id){
+        var entity = iBusinessUnitRepository.getReferenceById(id);
+        return entity.getDeleted();
     }
 }

@@ -24,7 +24,4 @@ public class BusinessUnitRequestDto {
 
     @Pattern(regexp = "^[+][1-9]{2,3}[1-9]\\d{8,9}$", message = "Format: (+) + Area code + phone number. Without spaces and special characters")
     private String phoneNumber;
-
-    @NotNull(message = "Owner's name is required.")
-    private String owner;
 }

@@ -19,13 +19,13 @@
 		<java.version>17</java.version>
 	</properties>
 	<modules>
+		<module>discovery-server</module>
 		<module>api-gateway</module>
 		<module>business-unit</module>
 		<module>availability</module>
 		<module>payment</module>
 		<module>booking</module>
 		<module>notification</module>
-		<module>rental-unit</module>
 	</modules>
 	<dependencies>
 	</dependencies>

@@ -8,4 +8,5 @@ public interface IBusinessUnitService {
     BusinessUnitResponseDto updateBusinessUnit(BusinessUnitRequestDto dto, Long id);
     String deleteBusinessUnit(Long id);
     BusinessUnitResponseDto getBusinessUnitResponseDtoById(Long id);
+    boolean existsBusinessUnitById(Long id);
 }
