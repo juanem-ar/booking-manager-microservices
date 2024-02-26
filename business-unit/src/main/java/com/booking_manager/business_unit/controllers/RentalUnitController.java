@@ -21,17 +21,14 @@ public class RentalUnitController {
         //TODO VALIDAR ATRIBUTOS DE LOS DTOS ENVIADOS
         return ResponseEntity.status(HttpStatus.CREATED).body(iRentalUnitService.saveRentalUnit(dto));
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<RentalUnitResponseDto> getRentalUnit(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.getRentalUnitResponseDtoById(id));
     }
-
     @GetMapping("/all/{id}")
     public ResponseEntity<List<RentalUnitResponseDto>> getAllRentalUnitByBusinessUnitId(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.getAllRentalUnitResponseDtoByBusinessUnitId(id));
     }
-
     @PatchMapping("/{id}")
     public ResponseEntity<RentalUnitResponseDto> editRentalUnit(@RequestBody RentalUnitRequestDto dto, @PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.updateRentalUnit(dto, id));

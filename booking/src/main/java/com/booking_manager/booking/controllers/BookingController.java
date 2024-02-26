@@ -1,16 +1,36 @@
 package com.booking_manager.booking.controllers;
 
+import com.booking_manager.booking.models.dtos.BookingResponseDto;
+import com.booking_manager.booking.models.dtos.BookingRequestDto;
+import com.booking_manager.booking.services.IBookingService;
+import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/bookings")
+@RequiredArgsConstructor
 public class BookingController {
-    @GetMapping
-    public ResponseEntity<String> testCallService(){
-        return ResponseEntity.status(HttpStatus.OK).body("Booking Service - UP");
+    private final IBookingService iBookingService;
+    @PostMapping
+    public ResponseEntity<BookingResponseDto> createBooking(@Validated @RequestBody BookingRequestDto dto){
+        return ResponseEntity.status(HttpStatus.CREATED).body(iBookingService.createBooking(dto));
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<BookingResponseDto> getBooking(@PathVariable Long id) throws BadRequestException {
+        return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getBooking(id));
+    }
+    @GetMapping("/all")
+    public ResponseEntity<List<BookingResponseDto>> getAllBooking(){
+        return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getAllBooking());
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteBooking(@PathVariable Long id) throws BadRequestException {
+        return ResponseEntity.status(HttpStatus.OK).body(iBookingService.deleteBooking(id));
     }
 }
