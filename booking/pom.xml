@@ -100,6 +100,20 @@
 			<version>1.5.5.Final</version>
 		</dependency>
 		<!-- MAPSTRUCT END -->
+		<!-- SYNC BEGIN -->
+		<!-- Reactive web-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+		<!-- Reactive web END-->
+		<!-- RESILIENCE4J-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+		</dependency>
+		<!-- RESILIENCE4J END-->
+		<!-- SYNC END -->
 	</dependencies>
 	<build>
 		<plugins>

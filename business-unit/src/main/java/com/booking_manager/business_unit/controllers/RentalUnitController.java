@@ -1,5 +1,7 @@
 package com.booking_manager.business_unit.controllers;
 
+import com.booking_manager.business_unit.models.dtos.AvailabilityRentalUnitRequestDto;
+import com.booking_manager.business_unit.models.dtos.BaseResponse;
 import com.booking_manager.business_unit.models.dtos.RentalUnitRequestDto;
 import com.booking_manager.business_unit.models.dtos.RentalUnitResponseDto;
 import com.booking_manager.business_unit.services.IRentalUnitService;
@@ -29,16 +31,20 @@ public class RentalUnitController {
     public ResponseEntity<List<RentalUnitResponseDto>> getAllRentalUnitByBusinessUnitId(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.getAllRentalUnitResponseDtoByBusinessUnitId(id));
     }
+    @PostMapping("/available")
+    public ResponseEntity<BaseResponse> existsRentalUnitByAvailableRequestDto(@RequestBody AvailabilityRentalUnitRequestDto dto){
+        return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.existsRentalUnitByAvailableRequestDto(dto));
+    }
     @PatchMapping("/{id}")
     public ResponseEntity<RentalUnitResponseDto> editRentalUnit(@RequestBody RentalUnitRequestDto dto, @PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.updateRentalUnit(dto, id));
+        return ResponseEntity.status(HttpStatus.CREATED).body(iRentalUnitService.updateRentalUnit(dto, id));
     }
     @PatchMapping("/change-status/{id}")
     public ResponseEntity<String> disableRentalUnit(@PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.changeStatusRentalUnit(id));
+        return ResponseEntity.status(HttpStatus.CREATED).body(iRentalUnitService.changeStatusRentalUnit(id));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteRentalUnit(@PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.deleteRentalUnit(id));
+        return ResponseEntity.status(HttpStatus.CREATED).body(iRentalUnitService.deleteRentalUnit(id));
     }
 }

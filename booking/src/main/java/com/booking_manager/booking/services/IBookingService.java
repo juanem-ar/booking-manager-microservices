@@ -7,7 +7,7 @@ import org.apache.coyote.BadRequestException;
 import java.util.List;
 
 public interface IBookingService {
-    BookingResponseDto createBooking(BookingRequestDto dto);
+    BookingResponseDto createBooking(BookingRequestDto dto) throws Exception;
 
     BookingResponseDto getBooking(Long id) throws BadRequestException;
 

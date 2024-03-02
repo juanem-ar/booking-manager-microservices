@@ -1,6 +1,8 @@
 package com.booking_manager.business_unit.services.impl;
 
 import com.booking_manager.business_unit.mappers.IRentalUnitMapper;
+import com.booking_manager.business_unit.models.dtos.AvailabilityRentalUnitRequestDto;
+import com.booking_manager.business_unit.models.dtos.BaseResponse;
 import com.booking_manager.business_unit.models.dtos.RentalUnitRequestDto;
 import com.booking_manager.business_unit.models.dtos.RentalUnitResponseDto;
 import com.booking_manager.business_unit.models.entities.DeletedEntity;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -117,6 +120,18 @@ public class RentalUnitServiceImpl implements IRentalUnitService {
         }else{
             throw new IllegalArgumentException("Invalid Rental Unit Id");
         }
+    }
+
+    @Override
+    public BaseResponse existsRentalUnitByAvailableRequestDto(AvailabilityRentalUnitRequestDto dto) {
+        var errorList = new ArrayList<String>();
+
+        if (!exists(dto.id())){
+            errorList.add("Invalid Rental Unit Id.");
+        }else if (iRentalUnitRepository.getReferenceById(dto.id()).getStatus() == EStatus.STATUS_DISABLE ) {
+            errorList.add("The Rental Unit is disabled.");
+        }
+        return errorList.size() > 0 ? new BaseResponse(errorList.toArray(new String[0])) : new BaseResponse(null);
     }
 
     public boolean exists(Object object){

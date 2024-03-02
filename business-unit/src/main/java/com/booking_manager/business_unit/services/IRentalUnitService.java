@@ -1,5 +1,7 @@
 package com.booking_manager.business_unit.services;
 
+import com.booking_manager.business_unit.models.dtos.AvailabilityRentalUnitRequestDto;
+import com.booking_manager.business_unit.models.dtos.BaseResponse;
 import com.booking_manager.business_unit.models.dtos.RentalUnitRequestDto;
 import com.booking_manager.business_unit.models.dtos.RentalUnitResponseDto;
 
@@ -17,4 +19,5 @@ public interface IRentalUnitService {
     String deleteRentalUnit(Long id);
 
     String changeStatusRentalUnit(Long id);
+    BaseResponse existsRentalUnitByAvailableRequestDto(AvailabilityRentalUnitRequestDto dto);
 }
