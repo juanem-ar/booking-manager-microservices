@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class BookingServiceImpl implements IBookingService {
         if (rentalUnitStatusErrorList != null && !rentalUnitStatusErrorList.hastErrors()){
 
             var entity = iBookingMapper.toEntity(dto);
-            bookingSettings(entity);
+            bookingSettings(entity, dto.getCheckIn(), dto.getCheckOut());
             var entitySaved = iBookingRepository.save(entity);
 
             BaseResponse savedStay = createStay(dto, entitySaved.getId());
@@ -134,12 +135,9 @@ public class BookingServiceImpl implements IBookingService {
         else
             throw new BadRequestException("Invalid Booking id");
     }
-    public boolean existsBookingEntity(Long id){
-        return iBookingRepository.existsById(id);
-    }
 
-    public void bookingSettings(BookingEntity entity){
-        long daysToBooking = DAYS.between(entity.getCheckIn(), entity.getCheckOut());
+    public void bookingSettings(BookingEntity entity, LocalDate checkIn, LocalDate checkOut){
+        long daysToBooking = DAYS.between(checkIn, checkOut);
         entity.setDeleted(Boolean.FALSE);
         entity.setStatus(EStatus.STATUS_IN_PROCESS);
         entity.setTotalAmount(entity.getCostPerNight() * daysToBooking);

@@ -10,9 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -43,17 +41,6 @@ public class BookingEntity {
     @Max(9)
     private int amountOfPeople;
 
-    @NotNull(message = "Check-in date is required (YYYY-MM-dd).")
-    @Column(name = "check_in")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @FutureOrPresent
-    private LocalDate checkIn;
-
-    @NotNull(message = "Check-out date is required (YYYY-MM-dd).")
-    @Column(name = "check_out")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @Future
-    private LocalDate checkOut;
     @NotNull(message = "Cost per night is required")
     @Column(name = "cost_per_night")
     @Min(0)
@@ -85,8 +72,6 @@ public class BookingEntity {
         return "\n" + "RESERVATION ID: " + this.id + "\n" +
                 "Rental Unit id: " + this.getUnit() + "\n" +
                 "Amount of people: " + this.amountOfPeople + "\n" +
-                "Check-in: " + this.checkIn + "\n" +
-                "check-out: " + this.checkOut + "\n" + "\n"+
 
                 "COST DETAIL: " + "\n" +
                 "Cost per night: " + this.costPerNight + "\n" +

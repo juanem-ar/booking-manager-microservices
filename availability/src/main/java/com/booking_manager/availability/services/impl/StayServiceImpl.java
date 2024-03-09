@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,8 +27,7 @@ public class StayServiceImpl implements IStayService {
 
     @Override
     public BaseResponse createStay(StayRequestDto dto) throws Exception {
-
-        //TODO VALIDAR MAXIMO DE NOCHES PARA RESERVAR -> ME DEJA RESERVAR UNA NOCHE (REPETIDAS VECES)
+        validateStay(dto.getCheckIn(), dto.getCheckOut());
         var errorList = new ArrayList<String>();
         if (!checkAvailability(dto)){
             var entity = iStayMapper.toStayEntity(dto);
@@ -78,5 +78,12 @@ public class StayServiceImpl implements IStayService {
         boolean result = iStayRepository.existsByCheckInLessThanAndCheckOutGreaterThanAndDeletedAndRentalUnitId(dto.getCheckOut(), dto.getCheckIn(), false, dto.getRentalUnitId());
         log.info("Stay find RESULT: {}", result);
         return result;
+    }
+
+    public void validateStay(LocalDate checkIn, LocalDate checkOut) throws BadRequestException {
+        if (checkIn.equals(checkOut))
+            throw new BadRequestException("check in and check out ares equals");
+        if (checkIn.isAfter(checkOut))
+            throw new BadRequestException("Invalid date");
     }
 }
