@@ -28,7 +28,7 @@ public class BusinessUnitServiceImpl implements IBusinessUnitService {
 
     @Override
     public BusinessUnitResponseDto saveBusinessUnit(BusinessUnitRequestDto dto) {
-        var existsBusinessEntity = iBusinessUnitRepository.existsByName(dto.getName());
+        var existsBusinessEntity = iBusinessUnitRepository.existsByNameAndDeleted(dto.getName(), false);
         if (existsBusinessEntity){
             throw new IllegalArgumentException("There is a business unit with that name.");
         }
