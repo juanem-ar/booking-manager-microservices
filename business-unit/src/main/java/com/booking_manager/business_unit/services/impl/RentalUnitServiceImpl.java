@@ -93,9 +93,9 @@ public class RentalUnitServiceImpl implements IRentalUnitService {
                         .idEntity(entity.getId())
                         .build();
                 var registerDeleted = iDeletedRepository.save(entityDeleted);
-                log.info("Rental Unit Deleted: {}", entitySaved);
-                log.info("New Entity Deleted: {}", registerDeleted);
-                return "¡Rental Unit Deleted!";
+                log.info("Rental Unit has been deleted: {}", entitySaved);
+                log.info("New Entity Save (DeleteEntity): {}", registerDeleted);
+                return "¡Rental Unit has been deleted!";
             }else{
                 throw new IllegalArgumentException("It's resource doesn't exists.");
             }

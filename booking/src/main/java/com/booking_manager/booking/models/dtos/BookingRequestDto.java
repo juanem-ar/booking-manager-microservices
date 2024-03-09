@@ -1,13 +1,13 @@
 package com.booking_manager.booking.models.dtos;
 
 import jakarta.persistence.Column;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Data
@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingRequestDto {
-    private long unit;
+    private Long unit;
     @NotNull(message = "Amount of people is required")
     @Column(name = "amount_of_people")
     @Min(1)

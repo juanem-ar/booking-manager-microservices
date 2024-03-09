@@ -2,6 +2,7 @@ package com.booking_manager.booking.models.entities;
 
 import com.booking_manager.booking.models.enums.EStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -82,8 +82,8 @@ public class BookingEntity {
 
     @Override
     public String toString() {
-        return "RESERVATION ID: " + this.id + "\n" +
-                "Unit id: " + this.getUnit() + "\n" +
+        return "\n" + "RESERVATION ID: " + this.id + "\n" +
+                "Rental Unit id: " + this.getUnit() + "\n" +
                 "Amount of people: " + this.amountOfPeople + "\n" +
                 "Check-in: " + this.checkIn + "\n" +
                 "check-out: " + this.checkOut + "\n" + "\n"+

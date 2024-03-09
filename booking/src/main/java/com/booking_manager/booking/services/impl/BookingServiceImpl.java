@@ -1,10 +1,7 @@
 package com.booking_manager.booking.services.impl;
 
 import com.booking_manager.booking.mappers.IBookingMapper;
-import com.booking_manager.booking.models.dtos.AvailabilityRentalUnitRequestDto;
-import com.booking_manager.booking.models.dtos.BaseResponse;
-import com.booking_manager.booking.models.dtos.BookingRequestDto;
-import com.booking_manager.booking.models.dtos.BookingResponseDto;
+import com.booking_manager.booking.models.dtos.*;
 import com.booking_manager.booking.models.entities.BookingEntity;
 import com.booking_manager.booking.models.entities.DeletedEntity;
 import com.booking_manager.booking.models.enums.EStatus;
@@ -15,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
@@ -25,6 +23,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class BookingServiceImpl implements IBookingService {
     private final IBookingRepository iBookingRepository;
     private final IBookingMapper iBookingMapper;
@@ -37,19 +36,37 @@ public class BookingServiceImpl implements IBookingService {
         BaseResponse rentalUnitStatusErrorList = getRentalUnitStatus(dto);
 
         if (rentalUnitStatusErrorList != null && !rentalUnitStatusErrorList.hastErrors()){
-            //TODO agregar validación de fechas cuando se implemente ese servicio
+
             var entity = iBookingMapper.toEntity(dto);
             bookingSettings(entity);
             var entitySaved = iBookingRepository.save(entity);
-            var response = iBookingMapper.toBookingResponseDto(entitySaved);
-            //TODO implementar envios de emails con kafka
-            log.info("Booking created: {}", entitySaved);
 
-            return response;
+            BaseResponse savedStay = createStay(dto, entitySaved.getId());
+
+            if (savedStay != null && !savedStay.hastErrors()){
+                var response = iBookingMapper.toBookingResponseDto(entitySaved);
+                //TODO implementar envios de emails con kafka
+                log.info("Booking created: {}", entitySaved);
+                return response;
+            }else{
+                log.info("Error when trying to save the stay: {}", savedStay.errorMessage());
+                throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedStay.errorMessage()));
+            }
+
         }else{
             log.info("Error when trying to validate rental unit status: {}", rentalUnitStatusErrorList.errorMessage());
             throw new IllegalArgumentException("Service communication error: " + Arrays.toString(rentalUnitStatusErrorList.errorMessage()));
         }
+    }
+
+    private BaseResponse createStay(BookingRequestDto dto, Long id) {
+        return this.webClientBuilder.build()
+                .post()
+                .uri("lb://availability-service/api/availabilities")
+                .bodyValue(StayRequestDto.builder().rentalUnitId(dto.getUnit()).bookingId(id).checkIn(dto.getCheckIn()).checkOut(dto.getCheckOut()).build())
+                .retrieve()
+                .bodyToMono(BaseResponse.class)
+                .block();
     }
 
     private BaseResponse getRentalUnitStatus(BookingRequestDto dto) {
@@ -77,22 +94,42 @@ public class BookingServiceImpl implements IBookingService {
     @Override
     public String deleteBooking(Long id) throws BadRequestException {
         var entity = getBookingEntity(id);
-        entity.setDeleted(Boolean.TRUE);
-        if (entity.getStatus().equals(EStatus.STATUS_IN_PROCESS))
-            entity.setStatus(EStatus.STATUS_CANCELLED);
-        var entitySaved = iBookingRepository.save(entity);
-        var entityDeleted = DeletedEntity.builder()
-                .idBooking(entitySaved.getId())
-                .build();
-        var entityRegistered = iDeletedRepository.save(entityDeleted);
-        log.info("Booking Deleted: {}", entitySaved);
-        log.info("New Entity Deleted (Saved): {}", entityRegistered);
-        return "Booking deleted.";
+
+        BaseResponse deleteStayMsg = deleteStay(entity.getId());
+
+        if (deleteStayMsg != null && !deleteStayMsg.hastErrors()){
+
+            entity.setDeleted(Boolean.TRUE);
+            if (entity.getStatus().equals(EStatus.STATUS_IN_PROCESS))
+                entity.setStatus(EStatus.STATUS_CANCELLED);
+            var entitySaved = iBookingRepository.save(entity);
+            var entityDeleted = DeletedEntity.builder()
+                    .idBooking(entitySaved.getId())
+                    .build();
+            var savedDeletedEntity = iDeletedRepository.save(entityDeleted);
+
+            log.info("Booking has been deleted: {}", entitySaved);
+            log.info("New Entity Save (DeleteEntity): {}", savedDeletedEntity);
+            log.info("The stay has been deleted.");
+            return "¡Booking has been deleted!";
+        }else{
+            log.info("Error when trying to delete the stay: {}", deleteStayMsg.errorMessage());
+            throw new IllegalArgumentException("Service communication error: " + Arrays.toString(deleteStayMsg.errorMessage()));
+        }
+    }
+
+    private BaseResponse deleteStay(Long id) {
+        return this.webClientBuilder.build()
+                .delete()
+                .uri("lb://availability-service/api/availabilities/" + id)
+                .retrieve()
+                .bodyToMono(BaseResponse.class)
+                .block();
     }
 
     public BookingEntity getBookingEntity(Long id) throws BadRequestException {
-        //if (iBookingRepository.existsByIdAndDeleted(id, false))
-        if (iBookingRepository.existsById(id))
+        if (iBookingRepository.existsByIdAndDeleted(id, false))
+        //if (iBookingRepository.existsById(id))
             return iBookingRepository.getReferenceById(id);
         else
             throw new BadRequestException("Invalid Booking id");

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class BookingController {
     private final IBookingService iBookingService;
     @PostMapping
     @CircuitBreaker(name = "booking-service", fallbackMethod = "createBookingFallback")
-    public ResponseEntity<BookingResponseDto> createBooking(@RequestBody BookingRequestDto dto) throws Exception{
+    public ResponseEntity<BookingResponseDto> createBooking(@Validated @RequestBody BookingRequestDto dto) throws Exception{
         return ResponseEntity.status(HttpStatus.CREATED).body(iBookingService.createBooking(dto));
     }
 

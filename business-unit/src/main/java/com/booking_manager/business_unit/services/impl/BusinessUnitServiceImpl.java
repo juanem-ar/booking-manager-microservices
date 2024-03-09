@@ -62,9 +62,9 @@ public class BusinessUnitServiceImpl implements IBusinessUnitService {
                     .idEntity(entity.getId())
                     .build();
             var registerDeleted = iDeletedRepository.save(entityDeleted);
-            log.info("Business Unit Deleted: {}", entitySaved);
-            log.info("New Entity Deleted: {}", registerDeleted);
-            return "¡Business Unit Deleted!";
+            log.info("Business Unit has been deleted: {}", entitySaved);
+            log.info("New Entity Save (DeleteEntity): {}", registerDeleted);
+            return "¡Business Unit has been deleted!";
         }else {
             throw new IllegalArgumentException("It's resource doesn't exists.");
         }

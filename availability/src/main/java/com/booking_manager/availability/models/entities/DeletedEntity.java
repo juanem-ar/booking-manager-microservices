@@ -1,26 +1,29 @@
-package com.booking_manager.business_unit.models.entities;
+package com.booking_manager.availability.models.entities;
 
-import com.booking_manager.business_unit.models.enums.EDeletedEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @Table(name = "soft_deleted")
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class DeletedEntity extends Register {
+public class DeletedEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private EDeletedEntity eDeletedEntity;
+
+    private Long stayId;
+    private Long bookingId;
+
     @CreationTimestamp
     private LocalDateTime creationDate;
     @UpdateTimestamp
