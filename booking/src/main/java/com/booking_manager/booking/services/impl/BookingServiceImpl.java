@@ -46,6 +46,8 @@ public class BookingServiceImpl implements IBookingService {
 
             if (savedStay != null && !savedStay.hastErrors()){
                 var response = iBookingMapper.toBookingResponseDto(entitySaved);
+                response.setCheckIn(dto.getCheckIn());
+                response.setCheckOut(dto.getCheckOut());
                 //TODO implementar envios de emails con kafka
                 log.info("Booking created: {}", entitySaved);
                 return response;
@@ -53,7 +55,6 @@ public class BookingServiceImpl implements IBookingService {
                 log.info("Error when trying to save the stay: {}", savedStay.errorMessage());
                 throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedStay.errorMessage()));
             }
-
         }else{
             log.info("Error when trying to validate rental unit status: {}", rentalUnitStatusErrorList.errorMessage());
             throw new IllegalArgumentException("Service communication error: " + Arrays.toString(rentalUnitStatusErrorList.errorMessage()));

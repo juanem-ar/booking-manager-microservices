@@ -8,10 +8,7 @@ import java.util.List;
 
 public interface IBookingService {
     BookingResponseDto createBooking(BookingRequestDto dto) throws Exception;
-
     BookingResponseDto getBooking(Long id) throws BadRequestException;
-
     List<BookingResponseDto> getAllBooking();
-
     String deleteBooking(Long id) throws BadRequestException;
 }

@@ -5,14 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 public class BookingResponseDto {
     private Long id;
-    private LocalDateTime creationDate;
-    private LocalDateTime updateDate;
     private Long unit;
     private int amountOfPeople;
     private LocalDate checkIn;
