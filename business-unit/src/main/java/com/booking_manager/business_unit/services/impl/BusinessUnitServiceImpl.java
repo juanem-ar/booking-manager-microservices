@@ -7,8 +7,10 @@ import com.booking_manager.business_unit.models.entities.BusinessUnitEntity;
 import com.booking_manager.business_unit.models.entities.DeletedEntity;
 import com.booking_manager.business_unit.models.entities.RentalUnitEntity;
 import com.booking_manager.business_unit.models.enums.EDeletedEntity;
+import com.booking_manager.business_unit.models.enums.EStatus;
 import com.booking_manager.business_unit.repositories.IBusinessUnitRepository;
 import com.booking_manager.business_unit.repositories.IDeletedRepository;
+import com.booking_manager.business_unit.repositories.IRentalUnitRepository;
 import com.booking_manager.business_unit.services.IBusinessUnitService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -23,6 +26,7 @@ import java.util.ArrayList;
 @Slf4j
 public class BusinessUnitServiceImpl implements IBusinessUnitService {
     private final IBusinessUnitRepository iBusinessUnitRepository;
+    private final IRentalUnitRepository iRentalUnitRepository;
     private final IBusinessUnitMapper iBusinessUnitMapper;
     private final IDeletedRepository iDeletedRepository;
 
@@ -64,9 +68,18 @@ public class BusinessUnitServiceImpl implements IBusinessUnitService {
             var registerDeleted = iDeletedRepository.save(entityDeleted);
             log.info("Business Unit has been deleted: {}", entitySaved);
             log.info("New Entity Save (DeleteEntity): {}", registerDeleted);
+            List<RentalUnitEntity> rentalUnitList = iRentalUnitRepository.findAllByBusinessUnitIdAndDeleted(id,false);
+            setDisabledStatus(rentalUnitList);
+            log.info("Disabled Rental Units: {}", rentalUnitList.stream().toList());
             return "¡Business Unit has been deleted!";
         }else {
             throw new IllegalArgumentException("It's resource doesn't exists.");
+        }
+    }
+    public void setDisabledStatus(List<RentalUnitEntity> rentalUnitList){
+        for (RentalUnitEntity entity: rentalUnitList) {
+            entity.setStatus(EStatus.STATUS_DISABLE);
+            iRentalUnitRepository.save(entity);
         }
     }
     public BusinessUnitEntity getBusinessUnitById(Long id) {
