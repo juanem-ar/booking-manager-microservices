@@ -125,7 +125,6 @@ public class RentalUnitServiceImpl implements IRentalUnitService {
     @Override
     public BaseResponse existsRentalUnitByAvailableRequestDto(AvailabilityRentalUnitRequestDto dto) {
         var errorList = new ArrayList<String>();
-
         if (!exists(dto.id())){
             errorList.add("Invalid Rental Unit Id.");
         }else if (iRentalUnitRepository.getReferenceById(dto.id()).getStatus() == EStatus.STATUS_DISABLE ) {
@@ -136,7 +135,7 @@ public class RentalUnitServiceImpl implements IRentalUnitService {
 
     public boolean exists(Object object){
         if (object instanceof RentalUnitRequestDto){
-            return iBusinessUnitRepository.existsById(((RentalUnitRequestDto) object).getBusinessUnit());
+            return iBusinessUnitRepository.existsByIdAndDeleted(((RentalUnitRequestDto) object).getBusinessUnit(), false);
         }else if (object instanceof Long){
             return iRentalUnitRepository.existsById((Long) object);
         }else{

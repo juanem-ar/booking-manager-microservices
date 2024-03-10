@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IBusinessUnitRepository extends JpaRepository<BusinessUnitEntity, Long> {
-   boolean existsByName(String name);
-
     boolean existsByNameAndDeleted(String name, boolean deleted);
+    boolean existsByIdAndDeleted(Long businessUnit, boolean deleted);
 }
