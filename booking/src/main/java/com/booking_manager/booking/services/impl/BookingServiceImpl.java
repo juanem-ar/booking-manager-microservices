@@ -45,6 +45,8 @@ public class BookingServiceImpl implements IBookingService {
             BaseResponse savedStay = createStay(dto, entitySaved.getId());
 
             if (savedStay != null && !savedStay.hastErrors()){
+                entitySaved.setStatus(EStatus.STATUS_ACCEPTED);
+                iBookingRepository.save(entity);
                 var response = iBookingMapper.toBookingResponseDto(entitySaved);
                 response.setCheckIn(dto.getCheckIn());
                 response.setCheckOut(dto.getCheckOut());
@@ -88,7 +90,7 @@ public class BookingServiceImpl implements IBookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getAllBooking() {
+    public List<BookingResponseDtoList> getAllBooking() {
         var bookingList = iBookingRepository.findAllByDeleted(false);
         return iBookingMapper.bookingListToBookingResponseDtoList(bookingList);
     }

@@ -2,6 +2,7 @@ package com.booking_manager.booking.controllers;
 
 import com.booking_manager.booking.models.dtos.BookingResponseDto;
 import com.booking_manager.booking.models.dtos.BookingRequestDto;
+import com.booking_manager.booking.models.dtos.BookingResponseDtoList;
 import com.booking_manager.booking.services.IBookingService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getBooking(id));
     }
     @GetMapping("/all")
-    public ResponseEntity<List<BookingResponseDto>> getAllBooking(){
+    public ResponseEntity<List<BookingResponseDtoList>> getAllBooking(){
         return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getAllBooking());
     }
     @DeleteMapping("/{id}")

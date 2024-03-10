@@ -61,6 +61,7 @@ public class StayServiceImpl implements IStayService {
                     .bookingId(entitySaved.getBookingId())
                     .build();
             var savedEntityDeleted = iDeletedRepository.save(entityDeleted);
+            //TODO CAMBIAR ESTADO DE LA RESERVAA CANCELADA
             log.info("Stay has been deleted: {}", entitySaved);
             log.info("New Entity Save (DeleteEntity): {}", savedEntityDeleted);
         }else{
