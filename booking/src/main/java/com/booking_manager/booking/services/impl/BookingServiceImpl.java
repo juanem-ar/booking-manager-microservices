@@ -32,8 +32,8 @@ public class BookingServiceImpl implements IBookingService {
     private final IDeletedRepository iDeletedRepository;
 
     @Override
-    public BookingResponseDto createBooking(BookingRequestDto dto) throws RuntimeException{
-
+    public BookingResponseDto createBooking(BookingRequestDto dto) throws Exception {
+        dto.validatePeriod(dto.getCheckIn(),dto.getCheckOut());
         BaseResponse rentalUnitStatusErrorList = getRentalUnitStatus(dto);
 
         if (rentalUnitStatusErrorList != null && !rentalUnitStatusErrorList.hastErrors()){

@@ -27,8 +27,9 @@ public class StayServiceImpl implements IStayService {
 
     @Override
     public BaseResponse createStay(StayRequestDto dto) throws Exception {
-        validateStay(dto.getCheckIn(), dto.getCheckOut());
         var errorList = new ArrayList<String>();
+        if (dto.getCheckIn().equals(dto.getCheckOut()))
+            errorList.add("check in and check out ares equals");
         if (!checkAvailability(dto)){
             var entity = iStayMapper.toStayEntity(dto);
             entity.setDeleted(Boolean.FALSE);
@@ -78,12 +79,5 @@ public class StayServiceImpl implements IStayService {
         boolean result = iStayRepository.existsByCheckInLessThanAndCheckOutGreaterThanAndDeletedAndRentalUnitId(dto.getCheckOut(), dto.getCheckIn(), false, dto.getRentalUnitId());
         log.info("Stay find RESULT: {}", result);
         return result;
-    }
-
-    public void validateStay(LocalDate checkIn, LocalDate checkOut) throws BadRequestException {
-        if (checkIn.equals(checkOut))
-            throw new BadRequestException("check in and check out ares equals");
-        if (checkIn.isAfter(checkOut))
-            throw new BadRequestException("Invalid date");
     }
 }

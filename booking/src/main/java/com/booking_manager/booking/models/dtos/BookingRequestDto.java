@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -15,7 +16,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingRequestDto {
+    @NotNull(message = "Rental Unit Id is required")
     private Long unit;
+
     @NotNull(message = "Amount of people is required")
     @Column(name = "amount_of_people")
     @Min(1)
@@ -41,4 +44,9 @@ public class BookingRequestDto {
     @Min(0)
     @Max(value = 100, message = "percent max value is 100")
     private int percent;
+
+    public void validatePeriod(LocalDate checkIn, LocalDate checkOut) throws BadRequestException {
+        if (checkIn.isAfter(checkOut))
+            throw new BadRequestException("Invalid check-in date");
+    }
 }
