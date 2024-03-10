@@ -8,6 +8,7 @@ import com.booking_manager.business_unit.services.IRentalUnitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class RentalUnitController {
     private final IRentalUnitService iRentalUnitService;
 
     @PostMapping
-    public ResponseEntity<RentalUnitResponseDto> saveRentalUnit(@RequestBody RentalUnitRequestDto dto){
+    public ResponseEntity<RentalUnitResponseDto> saveRentalUnit(@Validated @RequestBody RentalUnitRequestDto dto){
         //TODO VALIDAR ATRIBUTOS DE LOS DTOS ENVIADOS
         return ResponseEntity.status(HttpStatus.CREATED).body(iRentalUnitService.saveRentalUnit(dto));
     }
@@ -36,7 +37,7 @@ public class RentalUnitController {
         return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.existsRentalUnitByAvailableRequestDto(dto));
     }
     @PatchMapping("/{id}")
-    public ResponseEntity<RentalUnitResponseDto> editRentalUnit(@RequestBody RentalUnitRequestDto dto, @PathVariable Long id){
+    public ResponseEntity<RentalUnitResponseDto> editRentalUnit(@Validated @RequestBody RentalUnitRequestDto dto, @PathVariable Long id){
         return ResponseEntity.status(HttpStatus.CREATED).body(iRentalUnitService.updateRentalUnit(dto, id));
     }
     @PatchMapping("/change-status/{id}")
