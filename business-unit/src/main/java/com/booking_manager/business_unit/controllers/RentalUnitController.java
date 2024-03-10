@@ -21,7 +21,6 @@ public class RentalUnitController {
 
     @PostMapping
     public ResponseEntity<RentalUnitResponseDto> saveRentalUnit(@Validated @RequestBody RentalUnitRequestDto dto){
-        //TODO VALIDAR ATRIBUTOS DE LOS DTOS ENVIADOS
         return ResponseEntity.status(HttpStatus.CREATED).body(iRentalUnitService.saveRentalUnit(dto));
     }
     @GetMapping("/{id}")
