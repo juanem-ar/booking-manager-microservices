@@ -57,7 +57,7 @@ public class RentalUnitServiceImpl implements IRentalUnitService {
     }
     @Override
     public List<RentalUnitResponseDto> getAllRentalUnitResponseDtoByBusinessUnitId(Long id) {
-        var entity = iBusinessUnitRepository.existsById(id);
+        var entity = iBusinessUnitRepository.existsByIdAndDeleted(id, false);
         if (entity){
             List<RentalUnitEntity> entityList = iRentalUnitRepository.findAllByBusinessUnitIdAndDeleted(id, false);
             return iRentalUnitMapper.toRentalUnitResponseDtoList(entityList);

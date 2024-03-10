@@ -27,7 +27,7 @@ public class RentalUnitController {
     public ResponseEntity<RentalUnitResponseDto> getRentalUnit(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.getRentalUnitResponseDtoById(id));
     }
-    @GetMapping("/all/{id}")
+    @GetMapping("/all/business-unit/{id}")
     public ResponseEntity<List<RentalUnitResponseDto>> getAllRentalUnitByBusinessUnitId(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.getAllRentalUnitResponseDtoByBusinessUnitId(id));
     }
