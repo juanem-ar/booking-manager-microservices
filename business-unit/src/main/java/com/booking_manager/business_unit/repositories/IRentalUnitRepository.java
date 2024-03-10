@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface IRentalUnitRepository extends JpaRepository<RentalUnitEntity, Long> {
     List<RentalUnitEntity> findAllByBusinessUnitIdAndDeleted(Long id, boolean b);
+    boolean existsByIdAndDeleted(Long object, boolean deleted);
 }

@@ -137,7 +137,7 @@ public class RentalUnitServiceImpl implements IRentalUnitService {
         if (object instanceof RentalUnitRequestDto){
             return iBusinessUnitRepository.existsByIdAndDeleted(((RentalUnitRequestDto) object).getBusinessUnit(), false);
         }else if (object instanceof Long){
-            return iRentalUnitRepository.existsById((Long) object);
+            return iRentalUnitRepository.existsByIdAndDeleted((Long) object, false);
         }else{
             throw new IllegalArgumentException("Invalid parameter.");
         }
