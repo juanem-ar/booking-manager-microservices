@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +25,7 @@ public class StayServiceImpl implements IStayService {
     private final IDeletedRepository iDeletedRepository;
 
     @Override
-    public BaseResponse createStay(StayRequestDto dto) throws Exception {
+    public BaseResponse createStay(StayRequestDto dto) {
         var errorList = new ArrayList<String>();
         if (dto.getCheckIn().equals(dto.getCheckOut()))
             errorList.add("check in and check out ares equals");
@@ -61,7 +60,6 @@ public class StayServiceImpl implements IStayService {
                     .bookingId(entitySaved.getBookingId())
                     .build();
             var savedEntityDeleted = iDeletedRepository.save(entityDeleted);
-            //TODO CAMBIAR ESTADO DE LA RESERVAA CANCELADA
             log.info("Stay has been deleted: {}", entitySaved);
             log.info("New Entity Save (DeleteEntity): {}", savedEntityDeleted);
         }else{

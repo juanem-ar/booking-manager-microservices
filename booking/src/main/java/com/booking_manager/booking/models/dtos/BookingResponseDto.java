@@ -14,11 +14,6 @@ public class BookingResponseDto {
     private int amountOfPeople;
     private LocalDate checkIn;
     private LocalDate checkOut;
-    private Double costPerNight;
-    private Double partialPayment;
-    private int percent;
-    private Double debit;
-    private Double totalAmount;
     private EStatus status;
     @Override
     public String toString() {
@@ -26,14 +21,6 @@ public class BookingResponseDto {
                 "Unit id: " + this.getUnit() + "\n" +
                 "Amount of people: " + this.amountOfPeople + "\n" +
                 "Check-in: " + this.checkIn + "\n" +
-                "check-out: " + this.checkOut + "\n" + "\n"+
-
-                "COST DETAIL: " + "\n" +
-                "Cost per night: " + this.costPerNight + "\n" +
-                "Payment percent: %" + this.percent + "\n" +
-                "Total: " + this.totalAmount + "\n\n" +
-
-                "PAYED: " + this.partialPayment + "\n" +
-                "DEBIT: " + this.debit + "\n\n";
+                "check-out: " + this.checkOut + "\n";
     }
 }

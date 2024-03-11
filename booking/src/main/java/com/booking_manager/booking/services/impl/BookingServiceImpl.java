@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,20 +38,30 @@ public class BookingServiceImpl implements IBookingService {
         if (rentalUnitStatusErrorList != null && !rentalUnitStatusErrorList.hastErrors()){
 
             var entity = iBookingMapper.toEntity(dto);
-            bookingSettings(entity, dto.getCheckIn(), dto.getCheckOut());
+            entity.setDeleted(Boolean.FALSE);
+            entity.setStatus(EStatus.STATUS_IN_PROCESS);
             var entitySaved = iBookingRepository.save(entity);
 
             BaseResponse savedStay = createStay(dto, entitySaved.getId());
 
             if (savedStay != null && !savedStay.hastErrors()){
-                entitySaved.setStatus(EStatus.STATUS_ACCEPTED);
-                iBookingRepository.save(entity);
-                var response = iBookingMapper.toBookingResponseDto(entitySaved);
-                response.setCheckIn(dto.getCheckIn());
-                response.setCheckOut(dto.getCheckOut());
-                //TODO implementar envios de emails con kafka
-                log.info("Booking created: {}", entitySaved);
-                return response;
+
+                BaseResponse savedPayment = savePayment(dto, entitySaved.getId());
+
+                if (savedPayment != null && !savedPayment.hastErrors()) {
+                    //TODO EL ESTADO ACEPTADO DEBE SER ESTABLECIDO CUANDO SE CONFIRMA EL PAGO
+                    entitySaved.setStatus(EStatus.STATUS_ACCEPTED);
+                    iBookingRepository.save(entity);
+                    var response = iBookingMapper.toBookingResponseDto(entitySaved);
+                    response.setCheckIn(dto.getCheckIn());
+                    response.setCheckOut(dto.getCheckOut());
+                    //TODO implementar envios de emails con kafka
+                    log.info("Booking created: {}", entitySaved);
+                    return response;
+                }else{
+                    log.info("Error when trying to save the payment: {}", savedPayment.errorMessage());
+                    throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedPayment.errorMessage()));
+                }
             }else{
                 log.info("Error when trying to save the stay: {}", savedStay.errorMessage());
                 throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedStay.errorMessage()));
@@ -83,6 +92,33 @@ public class BookingServiceImpl implements IBookingService {
                 .block();
     }
 
+    private BaseResponse savePayment(BookingRequestDto dto, Long bookingId) {
+        long daysDuration = DAYS.between(dto.getCheckIn(), dto.getCheckOut());
+        double costPerNight = dto.getCostPerNight();
+        double totalAmount = costPerNight * daysDuration;
+        int percent = dto.getPercent();
+        var percentToDecimal = Double.valueOf((double) percent / 100);
+        double partialPayment = totalAmount * percentToDecimal;
+        double debit = totalAmount - partialPayment;
+
+        return this.webClientBuilder.build()
+                .post()
+                .uri("lb://payment-service/api/payments")
+                .bodyValue(
+                        PaymentRequestDto.builder()
+                                .bookingId(bookingId)
+                                .daysDuration(daysDuration)
+                                .costPerNight(costPerNight)
+                                .partialPayment(partialPayment)
+                                .debit(debit)
+                                .totalAmount(totalAmount)
+                                .percent(percent)
+                                .build())
+                .retrieve()
+                .bodyToMono(BaseResponse.class)
+                .block();
+    }
+
     @Override
     public BookingResponseDto getBooking(Long id) throws BadRequestException {
         var entity = getBookingEntity(id);
@@ -103,19 +139,26 @@ public class BookingServiceImpl implements IBookingService {
 
         if (deleteStayMsg != null && !deleteStayMsg.hastErrors()){
 
-            entity.setDeleted(Boolean.TRUE);
-            if (entity.getStatus().equals(EStatus.STATUS_IN_PROCESS))
-                entity.setStatus(EStatus.STATUS_CANCELLED);
-            var entitySaved = iBookingRepository.save(entity);
-            var entityDeleted = DeletedEntity.builder()
-                    .idBooking(entitySaved.getId())
-                    .build();
-            var savedDeletedEntity = iDeletedRepository.save(entityDeleted);
+            BaseResponse deletePaymentMsg = deletePayment(entity.getId());
 
-            log.info("Booking has been deleted: {}", entitySaved);
-            log.info("New Entity Save (DeleteEntity): {}", savedDeletedEntity);
-            log.info("The stay has been deleted.");
-            return "¡Booking has been deleted!";
+            if (deletePaymentMsg != null && !deletePaymentMsg.hastErrors()){
+                entity.setDeleted(Boolean.TRUE);
+                if (entity.getStatus().equals(EStatus.STATUS_IN_PROCESS))
+                    entity.setStatus(EStatus.STATUS_CANCELLED);
+                var entitySaved = iBookingRepository.save(entity);
+                var entityDeleted = DeletedEntity.builder()
+                        .idBooking(entitySaved.getId())
+                        .build();
+                var savedDeletedEntity = iDeletedRepository.save(entityDeleted);
+
+                log.info("Booking has been deleted: {}", entitySaved);
+                log.info("New Entity Save (DeleteEntity): {}", savedDeletedEntity);
+                log.info("The stay has been deleted.");
+                return "¡Booking has been deleted!";
+            }else{
+                log.info("Error when trying to delete the payment: {}", deletePaymentMsg.errorMessage());
+                throw new IllegalArgumentException("Service communication error: " + Arrays.toString(deletePaymentMsg.errorMessage()));
+            }
         }else{
             log.info("Error when trying to delete the stay: {}", deleteStayMsg.errorMessage());
             throw new IllegalArgumentException("Service communication error: " + Arrays.toString(deleteStayMsg.errorMessage()));
@@ -131,22 +174,20 @@ public class BookingServiceImpl implements IBookingService {
                 .block();
     }
 
+    private BaseResponse deletePayment(Long id) {
+        return this.webClientBuilder.build()
+                .delete()
+                .uri("lb://payment-service/api/payments/" + id)
+                .retrieve()
+                .bodyToMono(BaseResponse.class)
+                .block();
+    }
+
     public BookingEntity getBookingEntity(Long id) throws BadRequestException {
         if (iBookingRepository.existsByIdAndDeleted(id, false))
         //if (iBookingRepository.existsById(id))
             return iBookingRepository.getReferenceById(id);
         else
             throw new BadRequestException("Invalid Booking id");
-    }
-
-    public void bookingSettings(BookingEntity entity, LocalDate checkIn, LocalDate checkOut){
-        long daysToBooking = DAYS.between(checkIn, checkOut);
-        entity.setDeleted(Boolean.FALSE);
-        entity.setStatus(EStatus.STATUS_IN_PROCESS);
-        entity.setTotalAmount(entity.getCostPerNight() * daysToBooking);
-        int percent = entity.getPercent();
-        var percentToDecimal = Double.valueOf((double) percent / 100);
-        entity.setPartialPayment(entity.getTotalAmount() * percentToDecimal);
-        entity.setDebit(entity.getTotalAmount() - entity.getPartialPayment());
     }
 }

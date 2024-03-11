@@ -19,7 +19,7 @@ public class AvailabilityController {
     private final IStayService iStayService;
 
     @PostMapping
-    public ResponseEntity<BaseResponse> createStay(@Validated @RequestBody StayRequestDto dto) throws Exception {
+    public ResponseEntity<BaseResponse> createStay(@Validated @RequestBody StayRequestDto dto){
         return ResponseEntity.status(HttpStatus.CREATED).body(iStayService.createStay(dto));
     }
 

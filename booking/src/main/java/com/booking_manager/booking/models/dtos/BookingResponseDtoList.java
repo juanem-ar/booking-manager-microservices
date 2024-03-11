@@ -10,10 +10,5 @@ public class BookingResponseDtoList {
     private Long id;
     private Long unit;
     private int amountOfPeople;
-    private Double costPerNight;
-    private Double partialPayment;
-    private int percent;
-    private Double debit;
-    private Double totalAmount;
     private EStatus status;
 }
