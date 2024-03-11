@@ -1,6 +1,5 @@
 package com.booking_manager.booking.models.dtos;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +19,6 @@ public class BookingRequestDto {
     private Long unit;
 
     @NotNull(message = "Amount of people is required")
-    @Column(name = "amount_of_people")
     @Min(1)
     @Max(9)
     private int amountOfPeople;
@@ -36,7 +34,6 @@ public class BookingRequestDto {
     private LocalDate checkOut;
 
     @NotNull(message = "Cost per night is required")
-    @Column(name = "cost_per_night")
     @Min(0)
     private Double costPerNight;
 
