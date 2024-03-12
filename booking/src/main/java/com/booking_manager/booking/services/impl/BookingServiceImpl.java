@@ -42,29 +42,34 @@ public class BookingServiceImpl implements IBookingService {
             entity.setStatus(EStatus.STATUS_IN_PROCESS);
             var entitySaved = iBookingRepository.save(entity);
 
-            BaseResponse savedStay = createStay(dto, entitySaved.getId());
+            try{
+                BaseResponse savedStay = createStay(dto, entitySaved.getId());
 
-            if (savedStay != null && !savedStay.hastErrors()){
+                if (savedStay != null && !savedStay.hastErrors()){
 
-                BaseResponse savedPayment = savePayment(dto, entitySaved.getId());
+                    BaseResponse savedPayment = savePayment(dto, entitySaved.getId());
 
-                if (savedPayment != null && !savedPayment.hastErrors()) {
-                    //TODO EL ESTADO ACEPTADO DEBE SER ESTABLECIDO CUANDO SE CONFIRMA EL PAGO
-                    entitySaved.setStatus(EStatus.STATUS_ACCEPTED);
-                    iBookingRepository.save(entity);
-                    var response = iBookingMapper.toBookingResponseDto(entitySaved);
-                    response.setCheckIn(dto.getCheckIn());
-                    response.setCheckOut(dto.getCheckOut());
-                    //TODO implementar envios de emails con kafka
-                    log.info("Booking created: {}", entitySaved);
-                    return response;
+                    if (savedPayment != null && !savedPayment.hastErrors()) {
+                        //TODO EL ESTADO ACEPTADO DEBE SER ESTABLECIDO CUANDO SE CONFIRMA EL PAGO
+                        entitySaved.setStatus(EStatus.STATUS_ACCEPTED);
+                        iBookingRepository.save(entity);
+                        var response = iBookingMapper.toBookingResponseDto(entitySaved);
+                        response.setCheckIn(dto.getCheckIn());
+                        response.setCheckOut(dto.getCheckOut());
+                        //TODO implementar envios de emails con kafka
+                        log.info("Booking created: {}", entitySaved);
+                        return response;
+                    }else{
+                        log.info("Error when trying to save the payment: {}", savedPayment.errorMessage());
+                        throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedPayment.errorMessage()));
+                    }
                 }else{
-                    log.info("Error when trying to save the payment: {}", savedPayment.errorMessage());
-                    throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedPayment.errorMessage()));
+                    log.info("Error when trying to save the stay: {}", savedStay.errorMessage());
+                    throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedStay.errorMessage()));
                 }
-            }else{
-                log.info("Error when trying to save the stay: {}", savedStay.errorMessage());
-                throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedStay.errorMessage()));
+            }catch (Exception e){
+                deleteStay(entitySaved.getId());
+                throw new IllegalArgumentException("Service communication error: " + e.getMessage());
             }
         }else{
             log.info("Error when trying to validate rental unit status: {}", rentalUnitStatusErrorList.errorMessage());
