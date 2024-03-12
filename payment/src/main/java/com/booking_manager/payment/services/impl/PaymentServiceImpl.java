@@ -1,10 +1,7 @@
 package com.booking_manager.payment.services.impl;
 
 import com.booking_manager.payment.mappers.IPaymentMapper;
-import com.booking_manager.payment.models.dtos.BaseResponse;
-import com.booking_manager.payment.models.dtos.NewPaymentRequestDto;
-import com.booking_manager.payment.models.dtos.PaymentRequestDto;
-import com.booking_manager.payment.models.dtos.PaymentResponseDto;
+import com.booking_manager.payment.models.dtos.*;
 import com.booking_manager.payment.models.entities.DeletedEntity;
 import com.booking_manager.payment.models.entities.PaymentEntity;
 import com.booking_manager.payment.models.enums.EStatus;
@@ -31,10 +28,10 @@ public class PaymentServiceImpl implements IPaymentService {
     private final IDeleteRepository iDeleteRepository;
 
     @Override
-    public BaseResponse createPayment(PaymentRequestDto dto) {
+    public ComplexResponse createPayment(PaymentRequestDto dto) {
         var errorList = new ArrayList<String>();
+        var entity = iPaymentMapper.toEntity(dto);
         try{
-            var entity = iPaymentMapper.toEntity(dto);
             entity.setDeleted(Boolean.FALSE);
             if(dto.getDebit()!=0)
                 entity.setStatus(EStatus.STATUS_OPEN);
@@ -45,7 +42,9 @@ public class PaymentServiceImpl implements IPaymentService {
         }catch (Exception e){
             errorList.add("Error when trying to save the payment. Payment Service is not available: "+ "\n" + e.getMessage());
         }
-        return errorList.size() > 0 ? new BaseResponse(errorList.toArray(new String[0])) : new BaseResponse(null);
+        var resultWithErrors = ComplexResponse.builder().baseResponse(new BaseResponse(errorList.toArray(new String[0]))).build();
+        var resultWithoutErrors = ComplexResponse.builder().responseDto(iPaymentMapper.toPaymentResponseDto(entity)).baseResponse(new BaseResponse(null)).build();
+        return errorList.size() > 0 ?  resultWithErrors : resultWithoutErrors;
     }
 
     @Override

@@ -15,6 +15,12 @@ public class BookingResponseDto {
     private LocalDate checkIn;
     private LocalDate checkOut;
     private EStatus status;
+    private Double costPerNight;
+    private Double partialPayment;
+    private int percent;
+    private Double debit;
+    private Double totalAmount;
+    private EStatus paymentStatus;
     @Override
     public String toString() {
         return "RESERVATION ID: " + this.id + "\n" +

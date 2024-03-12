@@ -1,14 +1,11 @@
 package com.booking_manager.payment.services;
 
-import com.booking_manager.payment.models.dtos.BaseResponse;
-import com.booking_manager.payment.models.dtos.NewPaymentRequestDto;
-import com.booking_manager.payment.models.dtos.PaymentRequestDto;
-import com.booking_manager.payment.models.dtos.PaymentResponseDto;
+import com.booking_manager.payment.models.dtos.*;
 
 import java.util.List;
 
 public interface IPaymentService {
-    BaseResponse createPayment(PaymentRequestDto dto);
+    ComplexResponse createPayment(PaymentRequestDto dto);
 
     BaseResponse deletePayment(Long id);
 

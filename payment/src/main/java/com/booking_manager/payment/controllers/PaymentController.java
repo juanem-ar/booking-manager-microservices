@@ -1,9 +1,6 @@
 package com.booking_manager.payment.controllers;
 
-import com.booking_manager.payment.models.dtos.BaseResponse;
-import com.booking_manager.payment.models.dtos.NewPaymentRequestDto;
-import com.booking_manager.payment.models.dtos.PaymentRequestDto;
-import com.booking_manager.payment.models.dtos.PaymentResponseDto;
+import com.booking_manager.payment.models.dtos.*;
 import com.booking_manager.payment.services.IPaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +16,7 @@ import java.util.List;
 public class PaymentController {
     private final IPaymentService iPaymentService;
     @PostMapping
-    public ResponseEntity<BaseResponse> createPayment(@Validated @RequestBody PaymentRequestDto dto){
+    public ResponseEntity<ComplexResponse> createPayment(@Validated @RequestBody PaymentRequestDto dto){
         return ResponseEntity.status(HttpStatus.CREATED).body(iPaymentService.createPayment(dto));
     }
     @DeleteMapping("/{id}")

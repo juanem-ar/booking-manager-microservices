@@ -47,21 +47,29 @@ public class BookingServiceImpl implements IBookingService {
 
                 if (savedStay != null && !savedStay.hastErrors()){
 
-                    BaseResponse savedPayment = savePayment(dto, entitySaved.getId());
+                    ComplexResponse savedPayment = savePayment(dto, entitySaved.getId());
 
-                    if (savedPayment != null && !savedPayment.hastErrors()) {
+                    if (savedPayment.getBaseResponse() != null && !savedPayment.getBaseResponse().hastErrors()) {
+                        var paymentResponse = savedPayment.getResponseDto();
                         //TODO EL ESTADO ACEPTADO DEBE SER ESTABLECIDO CUANDO SE CONFIRMA EL PAGO
                         entitySaved.setStatus(EStatus.STATUS_ACCEPTED);
+                        //TODO
                         iBookingRepository.save(entity);
                         var response = iBookingMapper.toBookingResponseDto(entitySaved);
                         response.setCheckIn(dto.getCheckIn());
                         response.setCheckOut(dto.getCheckOut());
+                        response.setCostPerNight(paymentResponse.getCostPerNight());
+                        response.setPartialPayment(paymentResponse.getPartialPayment());
+                        response.setPercent(paymentResponse.getPercent());
+                        response.setDebit(paymentResponse.getDebit());
+                        response.setTotalAmount(paymentResponse.getTotalAmount());
+                        response.setPaymentStatus(paymentResponse.getStatus());
                         //TODO implementar envios de emails con kafka
                         log.info("Booking created: {}", entitySaved);
                         return response;
                     }else{
-                        log.info("Error when trying to save the payment: {}", savedPayment.errorMessage());
-                        throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedPayment.errorMessage()));
+                        log.info("Error when trying to save the payment: {}", savedPayment.getBaseResponse().errorMessage());
+                        throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedPayment.getBaseResponse().errorMessage()));
                     }
                 }else{
                     log.info("Error when trying to save the stay: {}", savedStay.errorMessage());
@@ -97,7 +105,7 @@ public class BookingServiceImpl implements IBookingService {
                 .block();
     }
 
-    private BaseResponse savePayment(BookingRequestDto dto, Long bookingId) {
+    private ComplexResponse savePayment(BookingRequestDto dto, Long bookingId) {
         long daysDuration = DAYS.between(dto.getCheckIn(), dto.getCheckOut());
         double costPerNight = dto.getCostPerNight();
         double totalAmount = costPerNight * daysDuration;
@@ -119,7 +127,7 @@ public class BookingServiceImpl implements IBookingService {
                                 .percent(percent)
                                 .build())
                 .retrieve()
-                .bodyToMono(BaseResponse.class)
+                .bodyToMono(ComplexResponse.class)
                 .block();
     }
 
