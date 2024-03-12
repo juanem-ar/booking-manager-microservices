@@ -96,9 +96,8 @@ public class BookingServiceImpl implements IBookingService {
         long daysDuration = DAYS.between(dto.getCheckIn(), dto.getCheckOut());
         double costPerNight = dto.getCostPerNight();
         double totalAmount = costPerNight * daysDuration;
-        int percent = dto.getPercent();
-        var percentToDecimal = Double.valueOf((double) percent / 100);
-        double partialPayment = totalAmount * percentToDecimal;
+        double partialPayment = dto.getPartialPayment();
+        int percent =(int) ((partialPayment / totalAmount)*100);
         double debit = totalAmount - partialPayment;
 
         return this.webClientBuilder.build()

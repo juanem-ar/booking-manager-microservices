@@ -37,10 +37,9 @@ public class BookingRequestDto {
     @Min(0)
     private Double costPerNight;
 
-    @NotNull(message = "Percent is required")
+    @NotNull(message = "Partial payment is required")
     @Min(0)
-    @Max(value = 100, message = "percent max value is 100")
-    private int percent;
+    private Double partialPayment;
 
     public void validatePeriod(LocalDate checkIn, LocalDate checkOut) throws BadRequestException {
         if (checkIn.isAfter(checkOut))

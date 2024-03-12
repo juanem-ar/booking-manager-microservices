@@ -62,7 +62,7 @@ public class BusinessUnitServiceImpl implements IBusinessUnitService {
             entity.setDeleted(true);
             var entitySaved = iBusinessUnitRepository.save(entity);
             var entityDeleted = DeletedEntity.builder()
-                    .eDeletedEntity(EDeletedEntity.RENTAL_UNIT)
+                    .eDeletedEntity(EDeletedEntity.BUSINESS_UNIT)
                     .idEntity(entity.getId())
                     .build();
             var registerDeleted = iDeletedRepository.save(entityDeleted);

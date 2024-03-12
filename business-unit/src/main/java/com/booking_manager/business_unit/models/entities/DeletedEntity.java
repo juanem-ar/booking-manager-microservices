@@ -9,17 +9,17 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @Table(name = "soft_deleted")
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class DeletedEntity extends Register {
+public class DeletedEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Long idEntity;
     private EDeletedEntity eDeletedEntity;
     @CreationTimestamp
     private LocalDateTime creationDate;

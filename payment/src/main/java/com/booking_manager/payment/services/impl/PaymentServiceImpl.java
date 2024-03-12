@@ -6,6 +6,7 @@ import com.booking_manager.payment.models.dtos.NewPaymentRequestDto;
 import com.booking_manager.payment.models.dtos.PaymentRequestDto;
 import com.booking_manager.payment.models.dtos.PaymentResponseDto;
 import com.booking_manager.payment.models.entities.DeletedEntity;
+import com.booking_manager.payment.models.entities.PaymentEntity;
 import com.booking_manager.payment.models.enums.EStatus;
 import com.booking_manager.payment.repositories.IDeleteRepository;
 import com.booking_manager.payment.repositories.IPaymentRepository;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class PaymentServiceImpl implements IPaymentService {
     private final IPaymentRepository iPaymentRepository;
     private final IPaymentMapper iPaymentMapper;
@@ -48,20 +51,21 @@ public class PaymentServiceImpl implements IPaymentService {
     @Override
     public BaseResponse deletePayment(Long id) {
         var errorList = new ArrayList<String>();
-
-        var entity = iPaymentRepository.findByBookingIdAndDeleted(id, false);
-        if (entity!=null){
-            entity.setDeleted(Boolean.TRUE);
-            var entitySaved = iPaymentRepository.save(entity);
-            var entityDeleted = DeletedEntity.builder()
-                    .paymentId(entitySaved.getId())
-                    .bookingId(entitySaved.getBookingId())
-                    .build();
-            var savedEntityDeleted = iDeleteRepository.save(entityDeleted);
-            log.info("Payment has been deleted: {}", entitySaved);
-            log.info("New Entity Save (DeleteEntity): {}", savedEntityDeleted);
-        }else{
+        var entityList = iPaymentRepository.findAllByBookingIdAndDeleted(id, false);
+        if(entityList.isEmpty()){
             errorList.add("Invalid Payment Id.");
+        }else{
+            for (PaymentEntity entity: entityList) {
+                entity.setDeleted(Boolean.TRUE);
+                var entitySaved = iPaymentRepository.save(entity);
+                var entityDeleted = DeletedEntity.builder()
+                        .paymentId(entitySaved.getId())
+                        .bookingId(entitySaved.getBookingId())
+                        .build();
+                var savedEntityDeleted = iDeleteRepository.save(entityDeleted);
+                log.info("Payment has been deleted: {}", entitySaved);
+                log.info("New Entity Save (DeleteEntity): {}", savedEntityDeleted);
+            }
         }
         return errorList.size() > 0 ? new BaseResponse(errorList.toArray(new String[0])) : new BaseResponse(null);
     }
@@ -74,21 +78,34 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Override
     public PaymentResponseDto savePayment(NewPaymentRequestDto dto) throws BadRequestException {
-        var entity = iPaymentRepository.findByBookingIdAndDeleted(dto.getBookingId(), false);
-        //TODO NO MODIFICAR EL PAGO; SINO QUE HAY Q CREAR UN PAGO NUEVO. Buscar el ultimo pago
-        if (entity!=null) {
-            entity.setPartialPayment(entity.getPartialPayment() + dto.getPayment());
-            if (dto.getPayment() < entity.getDebit())
-                entity.setDebit(entity.getDebit() - dto.getPayment());
-            else
+        var lastEntity = iPaymentRepository.findFirstByBookingIdAndDeletedOrderByIdDesc(dto.getBookingId(), false);
+        if (lastEntity!=null && dto.getPayment() > 0){
+            double debit = lastEntity.getDebit() - dto.getPayment();
+            double total = lastEntity.getTotalAmount();
+            int percent = (int) (((total - debit) / total)*100);
+
+            if (dto.getPayment() > lastEntity.getDebit())
                 throw new BadRequestException("Incorrect payment amount.");
-            if(entity.getPartialPayment().equals(entity.getTotalAmount()))
-                entity.setStatus(EStatus.STATUS_CLOSED);
-            var savedEntity = iPaymentRepository.save(entity);
-            log.info("Payment Saved: {}", savedEntity);
+
+            var newEntity = PaymentEntity.builder()
+                    .deleted(Boolean.FALSE)
+                    .bookingId(dto.getBookingId())
+                    .costPerNight(lastEntity.getCostPerNight())
+                    .partialPayment(dto.getPayment())
+                    .debit(debit)
+                    .percent(percent)
+                    .totalAmount(lastEntity.getTotalAmount())
+                    .status(EStatus.STATUS_OPEN)
+                    .build();
+
+            if(debit == 0)
+                newEntity.setStatus(EStatus.STATUS_CLOSED);
+
+            var savedEntity = iPaymentRepository.save(newEntity);
+            log.info("Payment Saved: {}", newEntity);
             return iPaymentMapper.toPaymentResponseDto(savedEntity);
         }else{
-            throw new IllegalArgumentException("Invalid Payment Id.");
+            throw new BadRequestException("Invalid payment.");
         }
     }
 }

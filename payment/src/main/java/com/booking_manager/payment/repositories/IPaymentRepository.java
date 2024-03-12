@@ -11,4 +11,6 @@ public interface IPaymentRepository extends JpaRepository<PaymentEntity, Long> {
     PaymentEntity findByBookingIdAndDeleted(Long id, boolean b);
 
     List<PaymentEntity> findAllByBookingIdAndDeleted(Long id, boolean b);
+
+    PaymentEntity findFirstByBookingIdAndDeletedOrderByIdDesc(Long bookingId, boolean b);
 }
