@@ -2,11 +2,13 @@ package com.booking_manager.payment.services.impl;
 
 import com.booking_manager.payment.mappers.IPaymentMapper;
 import com.booking_manager.payment.models.dtos.*;
+import com.booking_manager.payment.models.entities.CouponEntity;
 import com.booking_manager.payment.models.entities.DeletedEntity;
 import com.booking_manager.payment.models.entities.PaymentEntity;
 import com.booking_manager.payment.models.enums.EStatus;
 import com.booking_manager.payment.repositories.IDeleteRepository;
 import com.booking_manager.payment.repositories.IPaymentRepository;
+import com.booking_manager.payment.services.ICouponService;
 import com.booking_manager.payment.services.IPaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,24 +30,56 @@ public class PaymentServiceImpl implements IPaymentService {
     private final IPaymentRepository iPaymentRepository;
     private final IPaymentMapper iPaymentMapper;
     private final IDeleteRepository iDeleteRepository;
+    private final ICouponService iCouponService;
 
     @Override
-    public ComplexResponse createPayment(PaymentRequestDto dto) {
+    public ComplexResponse createPayment(BookingRequestDto dto, Long bookingId) throws BadRequestException {
         var errorList = new ArrayList<String>();
-        var entity = iPaymentMapper.toEntity(dto);
+
+        boolean existsCouponEntity = false;
+        CouponEntity couponEntity = new CouponEntity();
+
+        long daysDuration = DAYS.between(dto.getCheckIn(), dto.getCheckOut());
+        double costPerNight = dto.getCostPerNight();
+        double totalAmount = costPerNight * daysDuration;
+        //todo tener en cuenta cuando el pago parcial es mayor que el monto total con el descuento incluido
+        double partialPayment = dto.getPartialPayment();
+
+        if (dto.getCode()!=null){
+            var couponResponse = iCouponService.applyDiscount(totalAmount, dto.getCheckIn(), dto.getCheckOut(), daysDuration, dto.getCode());
+            existsCouponEntity = true;
+            totalAmount = couponResponse.getTotalAmount();
+            couponEntity = couponResponse.getEntity();
+        }
+
+        int percent = (int) ((partialPayment / totalAmount)*100);
+        double debit = totalAmount - partialPayment;
+
+        var entity = PaymentEntity.builder()
+                .bookingId(bookingId)
+                .partialPayment(partialPayment)
+                .percent(percent)
+                .deleted(Boolean.FALSE)
+                .debit(debit)
+                .costPerNight(costPerNight)
+                .totalAmount(totalAmount)
+                .build();
         try{
-            entity.setDeleted(Boolean.FALSE);
-            if(dto.getDebit()!=0)
+
+            if (existsCouponEntity)
+                entity.setCuponId(couponEntity);
+            if(entity.getDebit()>0)
                 entity.setStatus(EStatus.STATUS_OPEN);
-            else
+            else{
                 entity.setStatus(EStatus.STATUS_CLOSED);
+            }
             var savedEntity = iPaymentRepository.save(entity);
             log.info("Payment Saved: {}", savedEntity);
         }catch (Exception e){
             errorList.add("Error when trying to save the payment. Payment Service is not available: "+ "\n" + e.getMessage());
         }
         var resultWithErrors = ComplexResponse.builder().baseResponse(new BaseResponse(errorList.toArray(new String[0]))).build();
-        var resultWithoutErrors = ComplexResponse.builder().responseDto(iPaymentMapper.toPaymentResponseDto(entity)).baseResponse(new BaseResponse(null)).build();
+        var resultWithoutErrors = ComplexResponse.builder().object(iPaymentMapper.toPaymentResponseDto(entity)).baseResponse(new BaseResponse(null)).build();
         return errorList.size() > 0 ?  resultWithErrors : resultWithoutErrors;
     }
 

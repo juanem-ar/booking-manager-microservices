@@ -15,9 +15,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentController {
     private final IPaymentService iPaymentService;
-    @PostMapping
-    public ResponseEntity<ComplexResponse> createPayment(@Validated @RequestBody PaymentRequestDto dto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(iPaymentService.createPayment(dto));
+    @PostMapping("/bookings/{id}")
+    public ResponseEntity<ComplexResponse> createPayment(@Validated @RequestBody BookingRequestDto dto, @PathVariable Long id) throws Exception {
+        return ResponseEntity.status(HttpStatus.CREATED).body(iPaymentService.createPayment(dto, id));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<BaseResponse> deletePayment(@PathVariable Long id){

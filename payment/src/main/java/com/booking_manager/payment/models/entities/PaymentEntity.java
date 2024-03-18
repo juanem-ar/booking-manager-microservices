@@ -50,11 +50,9 @@ public class PaymentEntity {
 
     @NotNull(message = "Percent is required")
     @Min(0)
-    @Max(value = 100, message = "percent max value is 100")
     private int percent;
 
     @NotNull(message = "Debit amount is required")
-    @Min(value = 0,message = "Invalid amount")
     private Double debit;
 
     @NotNull(message = "Total amount is required")
@@ -63,4 +61,8 @@ public class PaymentEntity {
 
     @Enumerated(EnumType.STRING)
     private EStatus status;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "coupon_id")
+    private CouponEntity cuponId;
 }

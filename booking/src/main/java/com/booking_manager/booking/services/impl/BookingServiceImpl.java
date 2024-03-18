@@ -36,7 +36,6 @@ public class BookingServiceImpl implements IBookingService {
         BaseResponse rentalUnitStatusErrorList = getRentalUnitStatus(dto);
 
         if (rentalUnitStatusErrorList != null && !rentalUnitStatusErrorList.hastErrors()){
-
             var entity = iBookingMapper.toEntity(dto);
             entity.setDeleted(Boolean.FALSE);
             entity.setStatus(EStatus.STATUS_IN_PROCESS);
@@ -50,7 +49,7 @@ public class BookingServiceImpl implements IBookingService {
                     ComplexResponse savedPayment = savePayment(dto, entitySaved.getId());
 
                     if (savedPayment.getBaseResponse() != null && !savedPayment.getBaseResponse().hastErrors()) {
-                        var paymentResponse = savedPayment.getResponseDto();
+                        var paymentResponse = savedPayment.getObject();
                         //TODO EL ESTADO ACEPTADO DEBE SER ESTABLECIDO CUANDO SE CONFIRMA EL PAGO
                         entitySaved.setStatus(EStatus.STATUS_ACCEPTED);
                         //TODO
@@ -69,7 +68,7 @@ public class BookingServiceImpl implements IBookingService {
                         return response;
                     }else{
                         log.info("Error when trying to save the payment: {}", savedPayment.getBaseResponse().errorMessage());
-                        throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedPayment.getBaseResponse().errorMessage()));
+                        throw new IllegalArgumentException("Service communication error: " + Arrays.stream(savedPayment.getBaseResponse().errorMessage()).iterator().toString().toString());
                     }
                 }else{
                     log.info("Error when trying to save the stay: {}", savedStay.errorMessage());
@@ -77,7 +76,7 @@ public class BookingServiceImpl implements IBookingService {
                 }
             }catch (Exception e){
                 deleteStay(entitySaved.getId());
-                throw new IllegalArgumentException("Service communication error: " + e.getMessage());
+                throw new IllegalArgumentException("Service communication errorAA: " + e.getMessage());
             }
         }else{
             log.info("Error when trying to validate rental unit status: {}", rentalUnitStatusErrorList.errorMessage());
@@ -106,26 +105,11 @@ public class BookingServiceImpl implements IBookingService {
     }
 
     private ComplexResponse savePayment(BookingRequestDto dto, Long bookingId) {
-        long daysDuration = DAYS.between(dto.getCheckIn(), dto.getCheckOut());
-        double costPerNight = dto.getCostPerNight();
-        double totalAmount = costPerNight * daysDuration;
-        double partialPayment = dto.getPartialPayment();
-        int percent =(int) ((partialPayment / totalAmount)*100);
-        double debit = totalAmount - partialPayment;
 
         return this.webClientBuilder.build()
                 .post()
-                .uri("lb://payment-service/api/payments")
-                .bodyValue(
-                        PaymentRequestDto.builder()
-                                .bookingId(bookingId)
-                                .daysDuration(daysDuration)
-                                .costPerNight(costPerNight)
-                                .partialPayment(partialPayment)
-                                .debit(debit)
-                                .totalAmount(totalAmount)
-                                .percent(percent)
-                                .build())
+                .uri("lb://payment-service/api/payments/bookings/"+ bookingId)
+                .bodyValue(dto)
                 .retrieve()
                 .bodyToMono(ComplexResponse.class)
                 .block();

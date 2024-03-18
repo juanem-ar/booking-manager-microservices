@@ -1,4 +1,4 @@
-package com.booking_manager.booking.models.dtos;
+package com.booking_manager.payment.models.dtos;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

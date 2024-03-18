@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ComplexResponse {
-    private PaymentResponseDto responseDto;
+    private PaymentResponseDto object;
     private BaseResponse baseResponse;
 }

@@ -1,7 +1,6 @@
 package com.booking_manager.payment.models.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,9 +20,8 @@ public class DeletedEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
+    private Long couponId;
     private Long paymentId;
-    @NotNull
     private Long bookingId;
     @CreationTimestamp
     private LocalDateTime creationDate;
