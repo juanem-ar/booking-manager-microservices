@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface IBookingRepository extends JpaRepository<BookingEntity, Long> {
-    List<BookingEntity> findAllByDeleted(boolean deleted);
+    List<BookingEntity> findAllByIdAndDeleted(Long id, boolean deleted);
     boolean existsByIdAndDeleted(long id, boolean deleted);
 }

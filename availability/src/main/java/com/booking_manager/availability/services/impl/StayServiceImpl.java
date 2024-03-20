@@ -10,7 +10,6 @@ import com.booking_manager.availability.repositories.IStayRepository;
 import com.booking_manager.availability.services.IStayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,8 +46,7 @@ public class StayServiceImpl implements IStayService {
         if(staysList.size() > 0)
             return iStayMapper.toStayResponseDtoList(staysList);
         else
-            //TODO crear manejador de errores y exception para recursos vacios con status 200
-            throw new BadRequestException("The Rental Unit has no stays");
+            return new ArrayList<StayResponseDto>();
     }
     @Override
     public BaseResponse deleteStay(Long id) {

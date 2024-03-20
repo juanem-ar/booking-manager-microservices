@@ -13,11 +13,12 @@ import java.util.List;
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface IRentalUnitMapper {
-
+    @Mapping(source = "businessUnit.servicesEntityList", target = "serviceList")
     List<RentalUnitResponseDto> toRentalUnitResponseDtoList(List<RentalUnitEntity> entityList);
     @Mapping( source = "businessUnit",target = "businessUnit.id")
     RentalUnitEntity toRentalUnit(RentalUnitRequestDto dto);
     @Mapping( source = "businessUnit.id",target = "businessUnit")
+    @Mapping(source = "businessUnit.servicesEntityList", target = "serviceList")
     RentalUnitResponseDto toRentalUnitResponseDto(RentalUnitEntity entity);
     @Mapping( source = "businessUnit",target = "businessUnit.id")
     RentalUnitEntity updateEntity(RentalUnitRequestDto dto, @MappingTarget RentalUnitEntity entity);

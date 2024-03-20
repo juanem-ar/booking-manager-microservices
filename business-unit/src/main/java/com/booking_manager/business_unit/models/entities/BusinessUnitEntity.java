@@ -10,7 +10,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,10 +29,15 @@ public class BusinessUnitEntity {
     private String address;
     private String phoneNumber;
     @CreationTimestamp
+    @Column(name = "creation_date")
     private LocalDateTime creationDate;
     @UpdateTimestamp
+    @Column(name = "update_date")
     private LocalDateTime updateDate;
 
     @OneToMany(mappedBy = "businessUnit")
     private List<RentalUnitEntity> rentalUnitList;
+
+    @OneToMany(mappedBy = "businessUnit")
+    private List<ServicesEntity> servicesList;
 }

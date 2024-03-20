@@ -27,7 +27,7 @@ public class RentalUnitController {
     public ResponseEntity<RentalUnitResponseDto> getRentalUnit(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.getRentalUnitResponseDtoById(id));
     }
-    @GetMapping("/all/business-unit/{id}")
+    @GetMapping("/business-unit/{id}")
     public ResponseEntity<List<RentalUnitResponseDto>> getAllRentalUnitByBusinessUnitId(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.getAllRentalUnitResponseDtoByBusinessUnitId(id));
     }
@@ -39,7 +39,7 @@ public class RentalUnitController {
     public ResponseEntity<RentalUnitResponseDto> editRentalUnit(@Validated @RequestBody RentalUnitRequestDto dto, @PathVariable Long id){
         return ResponseEntity.status(HttpStatus.CREATED).body(iRentalUnitService.updateRentalUnit(dto, id));
     }
-    @PatchMapping("/change-status/{id}")
+    @PatchMapping("/{id}/change-status")
     public ResponseEntity<String> disableRentalUnit(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.CREATED).body(iRentalUnitService.changeStatusRentalUnit(id));
     }

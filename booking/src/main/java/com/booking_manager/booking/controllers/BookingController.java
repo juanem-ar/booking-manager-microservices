@@ -24,7 +24,6 @@ public class BookingController {
     public ResponseEntity<BookingResponseDto> createBooking(@Validated @RequestBody BookingRequestDto dto) throws Exception{
         return ResponseEntity.status(HttpStatus.CREATED).body(iBookingService.createBooking(dto));
     }
-
     public ResponseEntity<String> createBookingFallback(Throwable throwable){
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(throwable.getMessage());
     }
@@ -32,9 +31,9 @@ public class BookingController {
     public ResponseEntity<BookingResponseDto> getBooking(@PathVariable Long id) throws BadRequestException {
         return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getBooking(id));
     }
-    @GetMapping("/all")
-    public ResponseEntity<List<BookingResponseDtoList>> getAllBooking(){
-        return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getAllBooking());
+    @GetMapping("/rental-unit/{id}")
+    public ResponseEntity<List<BookingResponseDtoList>> getAllBooking(@PathVariable Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getAllBooking(id));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteBooking(@PathVariable Long id) throws BadRequestException {

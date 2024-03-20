@@ -18,8 +18,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.time.temporal.ChronoUnit.DAYS;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -50,9 +48,10 @@ public class BookingServiceImpl implements IBookingService {
 
                     if (savedPayment.getBaseResponse() != null && !savedPayment.getBaseResponse().hastErrors()) {
                         var paymentResponse = savedPayment.getObject();
+
                         //TODO EL ESTADO ACEPTADO DEBE SER ESTABLECIDO CUANDO SE CONFIRMA EL PAGO
                         entitySaved.setStatus(EStatus.STATUS_ACCEPTED);
-                        //TODO
+
                         iBookingRepository.save(entity);
                         var response = iBookingMapper.toBookingResponseDto(entitySaved);
                         response.setCheckIn(dto.getCheckIn());
@@ -76,7 +75,8 @@ public class BookingServiceImpl implements IBookingService {
                 }
             }catch (Exception e){
                 deleteStay(entitySaved.getId());
-                throw new IllegalArgumentException("Service communication errorAA: " + e.getMessage());
+                //TODO mejorar esta toma del error. Se precisa mostrar los errores q arrastran las listas de errores.
+                throw new IllegalArgumentException("Service communication error: " + e.getMessage());
             }
         }else{
             log.info("Error when trying to validate rental unit status: {}", rentalUnitStatusErrorList.errorMessage());
@@ -122,8 +122,8 @@ public class BookingServiceImpl implements IBookingService {
     }
 
     @Override
-    public List<BookingResponseDtoList> getAllBooking() {
-        var bookingList = iBookingRepository.findAllByDeleted(false);
+    public List<BookingResponseDtoList> getAllBooking(Long id) {
+        var bookingList = iBookingRepository.findAllByIdAndDeleted(id, false);
         return iBookingMapper.bookingListToBookingResponseDtoList(bookingList);
     }
 

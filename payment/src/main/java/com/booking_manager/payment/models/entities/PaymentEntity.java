@@ -64,5 +64,5 @@ public class PaymentEntity {
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "coupon_id")
-    private CouponEntity cuponId;
+    private CouponEntity couponId;
 }

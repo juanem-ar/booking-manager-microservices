@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -27,4 +28,5 @@ public class RentalUnitResponseDto {
     private EStatus status;
     private EPool pool;
     private Long businessUnit;
+    private List<ServiceResponseDto> serviceList;
 }

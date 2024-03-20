@@ -10,6 +10,6 @@ import java.util.List;
 public interface IBookingService {
     BookingResponseDto createBooking(BookingRequestDto dto) throws Exception;
     BookingResponseDto getBooking(Long id) throws BadRequestException;
-    List<BookingResponseDtoList> getAllBooking();
+    List<BookingResponseDtoList> getAllBooking(Long id);
     String deleteBooking(Long id) throws BadRequestException;
 }

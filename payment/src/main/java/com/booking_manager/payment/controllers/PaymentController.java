@@ -27,7 +27,7 @@ public class PaymentController {
     public ResponseEntity<List<PaymentResponseDto>> getAllPaymentsByBookingId(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iPaymentService.getAllPaymentsByBookingId(id));
     }
-    @PostMapping("/new-payment")
+    @PostMapping("/new")
     public ResponseEntity<PaymentResponseDto> newPayment(@Validated @RequestBody NewPaymentRequestDto dto) throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(iPaymentService.savePayment(dto));
     }

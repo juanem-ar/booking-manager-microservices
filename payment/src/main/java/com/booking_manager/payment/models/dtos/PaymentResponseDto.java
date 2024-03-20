@@ -23,4 +23,5 @@ public class PaymentResponseDto {
     private Double debit;
     private Double totalAmount;
     private EStatus status;
+    private String code;
 }

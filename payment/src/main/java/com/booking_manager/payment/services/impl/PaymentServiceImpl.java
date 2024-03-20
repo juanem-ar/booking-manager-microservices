@@ -42,7 +42,6 @@ public class PaymentServiceImpl implements IPaymentService {
         long daysDuration = DAYS.between(dto.getCheckIn(), dto.getCheckOut());
         double costPerNight = dto.getCostPerNight();
         double totalAmount = costPerNight * daysDuration;
-        //todo tener en cuenta cuando el pago parcial es mayor que el monto total con el descuento incluido
         double partialPayment = dto.getPartialPayment();
 
         if (dto.getCode()!=null){
@@ -67,7 +66,7 @@ public class PaymentServiceImpl implements IPaymentService {
         try{
 
             if (existsCouponEntity)
-                entity.setCuponId(couponEntity);
+                entity.setCouponId(couponEntity);
             if(entity.getDebit()>0)
                 entity.setStatus(EStatus.STATUS_OPEN);
             else{

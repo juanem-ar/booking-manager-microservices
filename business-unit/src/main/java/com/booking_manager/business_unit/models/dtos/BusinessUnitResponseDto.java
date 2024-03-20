@@ -1,6 +1,7 @@
 package com.booking_manager.business_unit.models.dtos;
 
 import com.booking_manager.business_unit.models.entities.RentalUnitEntity;
+import com.booking_manager.business_unit.models.entities.ServicesEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,4 +22,5 @@ public class BusinessUnitResponseDto {
     private LocalDateTime creationDate;
     private LocalDateTime updateDate;
     private List<RentalUnitEntity> rentalUnitList;
+    private List<ServicesEntity> servicesEntityList;
 }
