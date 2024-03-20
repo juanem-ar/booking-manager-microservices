@@ -1,5 +1,21 @@
 version: '3'
 services:
+
+  ##POSTGRESQL DATABASE FOR RATES
+  db-rates:
+    container_name: db-rates
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ms_rates
+      POSTGRES_USER: Juanem
+      POSTGRES_PASSWORD: root
+    ports:
+      - 5431:5431
+    expose:
+      - 5431
+    command: -p 5431
+
   ##POSTGRESQL DATABASE FOR BUSINESS
   db-business-units:
     container_name: db-business

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.2</version>
+		<version>3.2.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.booking-manager</groupId>
@@ -26,6 +26,7 @@
 		<module>payment</module>
 		<module>booking</module>
 		<module>notification</module>
+		<module>rate</module>
 	</modules>
 	<dependencies>
 	</dependencies>
