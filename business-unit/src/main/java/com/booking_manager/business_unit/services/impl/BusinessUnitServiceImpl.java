@@ -39,6 +39,7 @@ public class BusinessUnitServiceImpl implements IBusinessUnitService {
         var entity = iBusinessUnitMapper.toEntity(dto);
         entity.setDeleted(false);
         entity.setRentalUnitList(new ArrayList<>());
+        entity.setServicesList(new ArrayList<>());
         var entitySaved = iBusinessUnitRepository.save(entity);
         log.info("BusinessUnit added: {}", entitySaved);
         return iBusinessUnitMapper.toResponseDto(entitySaved);
