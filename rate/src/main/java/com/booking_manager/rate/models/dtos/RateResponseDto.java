@@ -20,4 +20,5 @@ public class RateResponseDto {
     private Long businessUnit;
     private Long rentalUnit;
     private int amountOfPeople;
+    private SeasonResponseDto season;
 }

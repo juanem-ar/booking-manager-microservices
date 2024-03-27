@@ -4,6 +4,7 @@ import com.booking_manager.rate.models.dtos.SeasonRequestDto;
 import com.booking_manager.rate.models.dtos.SeasonResponseDto;
 import com.booking_manager.rate.models.entities.SeasonEntity;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ISeasonService {
@@ -13,4 +14,5 @@ public interface ISeasonService {
     SeasonResponseDto editSeason(Long id, SeasonRequestDto dto);
     SeasonEntity getSeasonEntityNotDeletedById(Long id);
     List<SeasonResponseDto> getAllSeasonByBusinessUnitId(Long id);
+    SeasonEntity getSeasonEntityNotDeletedByBusinessUnitIdAndDate(Long businessUnitId, LocalDate date);
 }

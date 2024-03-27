@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequestMapping("/api/rates")
 @RequiredArgsConstructor
@@ -20,5 +22,16 @@ public class RateController {
     @GetMapping("/{id}")
     public ResponseEntity<RateResponseDto> getRate(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iRateService.getRate(id));
+    }
+    @GetMapping("/business-unit/{businessUnitId}")
+    public ResponseEntity<Double> getRateByBusinessUnitIdAndStay(@PathVariable Long businessUnitId,
+                                                               @RequestParam(required = true) Long rentalUnitId,
+                                                    @RequestParam(required = true) LocalDate checkIn,
+                                                    @RequestParam(required = true) LocalDate checkOut){
+        return ResponseEntity.status(HttpStatus.OK).body(iRateService.getRateByStay(businessUnitId,rentalUnitId, checkIn,checkOut));
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteRate(@PathVariable Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(iRateService.deleteRate(id));
     }
 }

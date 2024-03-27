@@ -4,6 +4,7 @@ import com.booking_manager.rate.models.dtos.RateRequestDto;
 import com.booking_manager.rate.models.dtos.RateResponseDto;
 import com.booking_manager.rate.models.entities.RateEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 

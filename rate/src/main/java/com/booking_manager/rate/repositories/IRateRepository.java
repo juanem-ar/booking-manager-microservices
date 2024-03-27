@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IRateRepository extends JpaRepository<RateEntity, Long> {
+    Boolean existsByIdAndDeleted(Long id, boolean b);
+    RateEntity findByBusinessUnitAndRentalUnitAndDeletedAndSeasonId(Long businessUnitId, Long rentalUnitId, boolean b, Long id);
 }

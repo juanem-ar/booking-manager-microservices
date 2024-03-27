@@ -12,12 +12,15 @@ import com.booking_manager.rate.services.ISeasonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class SeasonServiceImpl implements ISeasonService {
     private final ISeasonMapper iSeasonMapper;
     private final ISeasonRepository iSeasonRepository;
@@ -73,5 +76,16 @@ public class SeasonServiceImpl implements ISeasonService {
     public List<SeasonResponseDto> getAllSeasonByBusinessUnitId(Long id) {
         var entityList = iSeasonRepository.findAllByBusinessUnitAndDeleted(id, false);
         return iSeasonMapper.toResponseDtoList(entityList);
+    }
+
+    @Override
+    public SeasonEntity getSeasonEntityNotDeletedByBusinessUnitIdAndDate(Long businessUnitId, LocalDate date) {
+        var entity = iSeasonRepository.findByBusinessUnitAndDeletedAndStartDateLessThanAndEndDateGreaterThanOrOrStartDateEqualsOrEndDateEquals (businessUnitId, false, date , date, date, date);
+        if (entity != null){
+            return entity;
+        }else{
+            throw new IllegalArgumentException("Date without prices.");
+        }
+
     }
 }
