@@ -32,15 +32,23 @@ public class RentalUnitServiceImpl implements IRentalUnitService {
     @Override
     public RentalUnitResponseDto saveRentalUnit(RentalUnitRequestDto dto) {
         if (exists(dto)){
-            var entity = iRentalUnitMapper.toRentalUnit(dto);
-            entity.setDeleted(Boolean.FALSE);
-            entity.setStatus(EStatus.STATUS_ENABLE);
-            var entitySaved= iRentalUnitRepository.save(entity);
-            log.info("Rental Unit Saved: {}", entitySaved);
-            return iRentalUnitMapper.toRentalUnitResponseDto(entitySaved);
+            var existsRentalUnitByName = iRentalUnitRepository.existsByNameAndBusinessUnitIdAndDeleted(dto.getName(),dto.getBusinessUnit(), false);
+            if (!existsRentalUnitByName) {
+                var businessUnitEntity = iBusinessUnitRepository.getReferenceById(dto.getBusinessUnit());
+                var entity = iRentalUnitMapper.toRentalUnit(dto);
+                entity.setDeleted(Boolean.FALSE);
+                entity.setStatus(EStatus.STATUS_ENABLE);
+                entity.setBusinessUnit(businessUnitEntity);
+                var entitySaved = iRentalUnitRepository.save(entity);
+                log.info("Rental Unit Saved: {}", entitySaved);
+                return iRentalUnitMapper.toRentalUnitResponseDto(entitySaved);
+            }else{
+                throw new IllegalArgumentException("There is already a Rental Unit with this name");
+            }
         }else{
             throw new IllegalArgumentException("Invalid Business Unit Id");
         }
+
     }
     @Override
     public RentalUnitResponseDto getRentalUnitResponseDtoById(Long id) {

@@ -1,6 +1,8 @@
 package com.booking_manager.rate.services.impl;
 
 import com.booking_manager.rate.mappers.IRateMapper;
+import com.booking_manager.rate.models.dtos.BaseResponse;
+import com.booking_manager.rate.models.dtos.RateComplexResponse;
 import com.booking_manager.rate.models.dtos.RateRequestDto;
 import com.booking_manager.rate.models.dtos.RateResponseDto;
 import com.booking_manager.rate.models.entities.DeletedEntity;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,7 @@ public class RateServiceImpl implements IRateService {
         entity.setDeleted(Boolean.FALSE);
         entity.setSeason(seasonEntity);
         var savedEntity = iRateRepository.save(entity);
+        log.info("new Rate: {}", savedEntity);
         return iRateMapper.toResponseDto(savedEntity);
     }
 
@@ -68,21 +73,40 @@ public class RateServiceImpl implements IRateService {
     }
 
     @Override
-    public Double getRateByStay(Long businessUnitId, Long rentalUnitId, LocalDate checkIn, LocalDate checkOut) {
+    public RateComplexResponse getRateByStay(Long businessUnitId, Long rentalUnitId, LocalDate checkIn, LocalDate checkOut) {
+        List<String> errorList = new ArrayList<>();
         double totalPrice = 0.0;
         LocalDate currenDate = checkIn;
+
         while (!currenDate.isEqual(checkOut)){
             var rateDay = getRateForDay(businessUnitId,rentalUnitId,currenDate);
             if (rateDay!=null){
                 totalPrice+=rateDay.getRate();
+            }else{
+                errorList.add("error to get rate of date " + currenDate);
             }
             currenDate = currenDate.plusDays(1);
         }
-        return totalPrice;
+        var resultWithErrors = RateComplexResponse.builder().baseResponse(new BaseResponse(errorList.toArray(new String[0]))).build();
+        var resultWithoutErrors = RateComplexResponse.builder().totalAmount(totalPrice).baseResponse(new BaseResponse(null)).build();
+        return errorList.size() > 0 ?  resultWithErrors : resultWithoutErrors;
     }
 
     public RateEntity getRateForDay(Long businessUnitId, Long rentalUnitId, LocalDate date){
         var seasonEntity = iSeasonService.getSeasonEntityNotDeletedByBusinessUnitIdAndDate(businessUnitId, date);
-        return iRateRepository.findByBusinessUnitAndRentalUnitAndDeletedAndSeasonId(businessUnitId, rentalUnitId, false, seasonEntity.getId());
+        var rateEntity = iRateRepository.findByBusinessUnitAndRentalUnitAndDeletedAndSeasonId(businessUnitId, rentalUnitId, false, seasonEntity.getId());
+        if (rateEntity != null)
+            return rateEntity;
+        else
+            throw new IllegalArgumentException("Bad Request");
+    }
+
+    @Override
+    public RateResponseDto editRate(Long id, RateRequestDto dto) {
+        var entity = getRateEntityNotDeletedById(id);
+        var mappedEntity = iRateMapper.updateEntity(dto, entity);
+        var savedEntity = iRateRepository.save(mappedEntity);
+        log.info("Rate has been edited: {}", savedEntity);
+        return iRateMapper.toResponseDto(savedEntity);
     }
 }

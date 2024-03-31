@@ -5,4 +5,4 @@ import lombok.Builder;
 import java.time.LocalDate;
 
 @Builder
-public record StayRequestDto (Long rentalUnitId, Long bookingId, LocalDate checkIn, LocalDate checkOut){}
+public record StayRequestDto (Long rentalUnitId,Long businessUnitId, Long bookingId, LocalDate checkIn, LocalDate checkOut){}

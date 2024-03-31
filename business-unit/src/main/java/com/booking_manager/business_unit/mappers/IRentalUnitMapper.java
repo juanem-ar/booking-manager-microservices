@@ -3,10 +3,12 @@ package com.booking_manager.business_unit.mappers;
 import com.booking_manager.business_unit.models.dtos.RentalUnitRequestDto;
 import com.booking_manager.business_unit.models.dtos.RentalUnitResponseDto;
 import com.booking_manager.business_unit.models.entities.RentalUnitEntity;
+import com.booking_manager.business_unit.models.entities.ServicesEntity;
 import com.booking_manager.business_unit.models.enums.EPool;
 import org.apache.coyote.BadRequestException;
 import org.mapstruct.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(componentModel = "spring",
@@ -18,7 +20,7 @@ public interface IRentalUnitMapper {
     @Mapping( source = "businessUnit",target = "businessUnit.id")
     RentalUnitEntity toRentalUnit(RentalUnitRequestDto dto);
     @Mapping( source = "businessUnit.id",target = "businessUnit")
-    @Mapping(source = "businessUnit.servicesList", target = "serviceList")
+    @Mapping(source = "businessUnit.servicesList", target = "servicesList")
     RentalUnitResponseDto toRentalUnitResponseDto(RentalUnitEntity entity);
     @Mapping( source = "businessUnit",target = "businessUnit.id")
     RentalUnitEntity updateEntity(RentalUnitRequestDto dto, @MappingTarget RentalUnitEntity entity);
@@ -30,5 +32,15 @@ public interface IRentalUnitMapper {
             return EPool.POOL_SHARED;
         else
             throw new BadRequestException("Invalid pool type. Please insert 'private' or 'shared'");
+    }
+
+    default List<ServicesEntity> servicesListToServicesEntityList(List<ServicesEntity> servicesList){
+        List<ServicesEntity> serviceEntityList = new ArrayList<>();
+        for (var entity: servicesList) {
+            if (!entity.getDeleted()){
+                serviceEntityList.add(entity);
+            }
+        }
+        return serviceEntityList;
     }
 }

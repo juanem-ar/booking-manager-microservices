@@ -1,5 +1,6 @@
 package com.booking_manager.business_unit.models.dtos;
 
+import com.booking_manager.business_unit.models.entities.ServicesEntity;
 import com.booking_manager.business_unit.models.enums.EPool;
 import com.booking_manager.business_unit.models.enums.EStatus;
 import lombok.AllArgsConstructor;
@@ -28,5 +29,5 @@ public class RentalUnitResponseDto {
     private EStatus status;
     private EPool pool;
     private Long businessUnit;
-    private List<ServiceResponseDto> serviceList;
+    private List<ServicesEntity> servicesList;
 }

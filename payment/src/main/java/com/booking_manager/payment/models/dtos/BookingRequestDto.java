@@ -33,9 +33,7 @@ public class BookingRequestDto {
     @Future
     private LocalDate checkOut;
 
-    @NotNull(message = "Cost per night is required")
-    @Min(0)
-    private Double costPerNight;
+    private Double totalAmount;
 
     @NotNull(message = "Partial payment is required")
     @Min(0)

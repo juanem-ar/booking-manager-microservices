@@ -30,6 +30,9 @@ public class StayEntity {
     @Column(name = "rental_unit_id")
     private Long rentalUnitId;
 
+    @Column(name = "business_unit_id")
+    private Long businessUnitId;
+
     private Long bookingId;
 
     @NotNull(message = "Check-in date is required (YYYY-MM-dd).")

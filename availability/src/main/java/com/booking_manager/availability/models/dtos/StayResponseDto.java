@@ -14,6 +14,8 @@ import java.time.LocalDate;
 public class StayResponseDto {
 
     private Long id;
+    private Long rentalUnitId;
+    private Long businessUnitId;
     private Long bookingId;
     private LocalDate checkIn;
     private LocalDate checkOut;

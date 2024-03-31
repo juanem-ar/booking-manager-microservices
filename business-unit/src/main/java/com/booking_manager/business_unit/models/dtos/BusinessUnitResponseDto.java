@@ -22,5 +22,5 @@ public class BusinessUnitResponseDto {
     private LocalDateTime creationDate;
     private LocalDateTime updateDate;
     private List<RentalUnitEntity> rentalUnitList;
-    private List<ServicesEntity> servicesEntityList;
+    private List<ServicesEntity> servicesList;
 }

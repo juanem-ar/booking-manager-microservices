@@ -1,4 +1,4 @@
-package com.booking_manager.booking.models.dtos;
+package com.booking_manager.rate.models.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ComplexResponse {
-    private PaymentResponseDto object;
+public class RateComplexResponse {
+    private Double totalAmount;
     private BaseResponse baseResponse;
 }

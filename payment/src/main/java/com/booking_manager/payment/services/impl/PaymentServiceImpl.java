@@ -40,8 +40,8 @@ public class PaymentServiceImpl implements IPaymentService {
         CouponEntity couponEntity = new CouponEntity();
 
         long daysDuration = DAYS.between(dto.getCheckIn(), dto.getCheckOut());
-        double costPerNight = dto.getCostPerNight();
-        double totalAmount = costPerNight * daysDuration;
+        double totalAmount = dto.getTotalAmount();
+        double costPerNight = totalAmount / daysDuration;
         double partialPayment = dto.getPartialPayment();
 
         if (dto.getCode()!=null){
@@ -64,7 +64,6 @@ public class PaymentServiceImpl implements IPaymentService {
                 .totalAmount(totalAmount)
                 .build();
         try{
-
             if (existsCouponEntity)
                 entity.setCouponId(couponEntity);
             if(entity.getDebit()>0)

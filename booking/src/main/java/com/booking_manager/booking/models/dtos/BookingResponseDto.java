@@ -11,6 +11,7 @@ import java.time.LocalDate;
 public class BookingResponseDto {
     private Long id;
     private Long unit;
+    private Long businessUnit;
     private int amountOfPeople;
     private LocalDate checkIn;
     private LocalDate checkOut;

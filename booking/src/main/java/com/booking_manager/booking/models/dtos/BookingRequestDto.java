@@ -15,6 +15,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingRequestDto {
+    @NotNull(message = "Business Unit Id is required")
+    private Long businessUnit;
+
     @NotNull(message = "Rental Unit Id is required")
     private Long unit;
 
@@ -32,10 +35,12 @@ public class BookingRequestDto {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Future
     private LocalDate checkOut;
-
+/*
     @NotNull(message = "Cost per night is required")
     @Min(0)
     private Double costPerNight;
+*/
+    private Double totalAmount;
 
     @NotNull(message = "Partial payment is required")
     @Min(0)

@@ -32,19 +32,27 @@ public class BookingServiceImpl implements IBookingService {
     public BookingResponseDto createBooking(BookingRequestDto dto) throws Exception {
         dto.validatePeriod(dto.getCheckIn(),dto.getCheckOut());
         BaseResponse rentalUnitStatusErrorList = getRentalUnitStatus(dto);
+        //TODO obtener los servicios de la unidad de negocio para agregarlos al monto total. En vez de obtener un base response la linea superior, debe recibir un complex response con la entidad de BU
 
         if (rentalUnitStatusErrorList != null && !rentalUnitStatusErrorList.hastErrors()){
+            RateComplexResponse rateServiceResponse = getTotalAmount(dto);
+            if (rateServiceResponse != null && !rateServiceResponse.getBaseResponse().hastErrors()){
+                //Se establece el monto total del request
+                dto.setTotalAmount(rateServiceResponse.getTotalAmount());
+            }else{
+                throw new IllegalArgumentException("Rate Service communication error: " + Arrays.toString(rateServiceResponse.getBaseResponse().errorMessage()));
+            }
             var entity = iBookingMapper.toEntity(dto);
             entity.setDeleted(Boolean.FALSE);
             entity.setStatus(EStatus.STATUS_IN_PROCESS);
             var entitySaved = iBookingRepository.save(entity);
 
             try{
-                BaseResponse savedStay = createStay(dto, entitySaved.getId());
+                BaseResponse savedStay = checkAvailabilityAndSaveStay(dto, entitySaved.getId());
 
                 if (savedStay != null && !savedStay.hastErrors()){
 
-                    ComplexResponse savedPayment = savePayment(dto, entitySaved.getId());
+                    PaymentComplexResponse savedPayment = savePayment(dto, entitySaved.getId());
 
                     if (savedPayment.getBaseResponse() != null && !savedPayment.getBaseResponse().hastErrors()) {
                         var paymentResponse = savedPayment.getObject();
@@ -84,11 +92,19 @@ public class BookingServiceImpl implements IBookingService {
         }
     }
 
-    private BaseResponse createStay(BookingRequestDto dto, Long id) {
+    private BaseResponse checkAvailabilityAndSaveStay(BookingRequestDto dto, Long id) {
         return this.webClientBuilder.build()
                 .post()
                 .uri("lb://availability-service/api/availabilities")
-                .bodyValue(StayRequestDto.builder().rentalUnitId(dto.getUnit()).bookingId(id).checkIn(dto.getCheckIn()).checkOut(dto.getCheckOut()).build())
+                .bodyValue(
+                        StayRequestDto.builder()
+                                .rentalUnitId(dto.getUnit())
+                                .businessUnitId(dto.getBusinessUnit())
+                                .bookingId(id)
+                                .checkIn(dto.getCheckIn())
+                                .checkOut(dto.getCheckOut())
+                                .build()
+                )
                 .retrieve()
                 .bodyToMono(BaseResponse.class)
                 .block();
@@ -98,20 +114,39 @@ public class BookingServiceImpl implements IBookingService {
         return this.webClientBuilder.build()
                 .post()
                 .uri("lb://business-service/api/rental-units/available")
-                .bodyValue(AvailabilityRentalUnitRequestDto.builder().id(dto.getUnit()).build())
+                .bodyValue(
+                        AvailabilityRentalUnitRequestDto.builder()
+                                .id(dto.getUnit())
+                                .build()
+                )
                 .retrieve()
                 .bodyToMono(BaseResponse.class)
                 .block();
     }
 
-    private ComplexResponse savePayment(BookingRequestDto dto, Long bookingId) {
-
+    private PaymentComplexResponse savePayment(BookingRequestDto dto, Long bookingId) {
+        //TODO debe viajar el valor total calculado en el servicio de rates
         return this.webClientBuilder.build()
                 .post()
                 .uri("lb://payment-service/api/payments/bookings/"+ bookingId)
                 .bodyValue(dto)
                 .retrieve()
-                .bodyToMono(ComplexResponse.class)
+                .bodyToMono(PaymentComplexResponse.class)
+                .block();
+    }
+
+    private RateComplexResponse getTotalAmount(BookingRequestDto dto) {
+        return this.webClientBuilder.build()
+                .post()
+                .uri(uriBuilder -> uriBuilder
+                        .host("rate-service")
+                        .path("/api/rates/business-unit/"+dto.getBusinessUnit())
+                        .queryParam("checkIn", dto.getCheckIn())
+                        .queryParam("checkOut", dto.getCheckOut())
+                        .build()
+                )
+                .retrieve()
+                .bodyToMono(RateComplexResponse.class)
                 .block();
     }
 

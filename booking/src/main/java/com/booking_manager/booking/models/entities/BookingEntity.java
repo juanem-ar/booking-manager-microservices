@@ -34,6 +34,7 @@ public class BookingEntity {
     private LocalDateTime updateDate;
 
     private Long unit;
+    private Long businessUnit;
 
     @NotNull(message = "Amount of people is required")
     @Column(name = "amount_of_people")

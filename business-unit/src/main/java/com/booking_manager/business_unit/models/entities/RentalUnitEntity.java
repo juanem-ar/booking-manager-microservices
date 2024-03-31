@@ -11,7 +11,8 @@ import org.hibernate.annotations.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "rental_unit")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -43,4 +44,22 @@ public class RentalUnitEntity {
     @JoinColumn(name = "business_unit_id", updatable = false)
     @JsonIgnore
     private BusinessUnitEntity businessUnit;
+
+    @Override
+    public String toString() {
+        return "Rental Unit: " + this.id + "\n" +
+                "deleted: " + this.deleted + "\n" +
+                "businessUnit: " + this.businessUnit.getId() + "\n"+
+                "name: " + this.name + "\n" +
+                "description: " + this.description + "\n" +
+                "address: " + this.address + "\n" +
+                "phoneNumber: " + this.phoneNumber + "\n"+
+                "creationDate: " + this.creationDate + "\n" +
+                "updateDate: " + this.updateDate + "\n" +
+                "maximumAmountOfGuests: " + this.maximumAmountOfGuests + "\n"+
+                "numberOfBedrooms: " + this.numberOfBedrooms + "\n" +
+                "numberOfRooms: " + this.numberOfRooms + "\n" +
+                "status: " + this.status + "\n"+
+                "pool: " + this.pool + "\n";
+    }
 }
