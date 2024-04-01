@@ -50,6 +50,7 @@ public class StayEntity {
     @Override
     public String toString() {
         return "\n" + "Stay Id: " + this.id + "\n" +
+                "Deleted: " + this.deleted + "\n" +
                 "Rental Unit Id: " + this.getRentalUnitId() + "\n" +
                 "Booking Id: " + this.getBookingId() + "\n" +
                 "Check-in: " + this.checkIn + "\n" +

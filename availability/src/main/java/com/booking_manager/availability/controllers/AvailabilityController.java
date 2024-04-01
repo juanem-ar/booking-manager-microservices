@@ -34,6 +34,6 @@ public class AvailabilityController {
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<BaseResponse> deleteStay(@PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.CREATED).body(iStayService.deleteStay(id));
+        return ResponseEntity.status(HttpStatus.OK).body(iStayService.deleteStay(id));
     }
 }

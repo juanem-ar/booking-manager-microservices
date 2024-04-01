@@ -63,7 +63,7 @@ public class StayServiceImpl implements IStayService {
             log.info("Stay has been deleted: {}", entitySaved);
             log.info("New Entity Save (DeleteEntity): {}", savedEntityDeleted);
         }else{
-            errorList.add("Invalid Stay Id.");
+            errorList.add("Invalid Booking Id.");
         }
         return errorList.size() > 0 ? new BaseResponse(errorList.toArray(new String[0])) : new BaseResponse(null);
     }
