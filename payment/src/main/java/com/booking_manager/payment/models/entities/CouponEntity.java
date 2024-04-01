@@ -37,6 +37,9 @@ public class CouponEntity {
     @Column(name = "update_date")
     private LocalDateTime updateDate;
 
+    @NotNull(message = "Business unit id is required.")
+    private Long businessUnitId;
+
     @NotNull(message = "Expiration date is required (YYYY-MM-dd).")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Column(name = "expiration_date")

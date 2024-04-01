@@ -18,6 +18,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CouponRequestDto {
 
+    @NotNull(message = "Business unit id is required.")
+    private Long businessUnitId;
+
     @NotNull(message = "Expiration date is required (YYYY-MM-dd).")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate expirationDate;

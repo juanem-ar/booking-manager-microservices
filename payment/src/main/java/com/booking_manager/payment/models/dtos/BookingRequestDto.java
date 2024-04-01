@@ -17,6 +17,9 @@ import java.time.LocalDate;
 public class BookingRequestDto {
     @NotNull(message = "Rental Unit Id is required")
     private Long unit;
+    
+    @NotNull(message = "Business Unit Id is required")
+    private Long businessUnit;
 
     @NotNull(message = "Amount of people is required")
     @Min(1)

@@ -53,8 +53,8 @@ public class CouponServiceImpl implements ICouponService {
      *
      */
     @Override
-    public List<CouponResponseDto> getAllCoupons() {
-        var entityList = iCouponRepository.findAllByDeleted(false);
+    public List<CouponResponseDto> getAllCoupons(Long id) {
+        var entityList = iCouponRepository.findAllByBusinessUnitIdAndDeleted(id, false);
         if (entityList.isEmpty())
             return new ArrayList<>();
         return iCouponMapper.toDtoList(entityList);
@@ -119,10 +119,10 @@ public class CouponServiceImpl implements ICouponService {
      *
      * @param   code   the coupon code.
      */
-    public CouponEntity getCouponEntityNotDeletedByCode(String code){
-        var existsEntity = iCouponRepository.existsByCodeAndDeleted(code, false);
+    public CouponEntity getCouponEntityNotDeletedByCode(String code, Long businessUnitId){
+        var existsEntity = iCouponRepository.existsByBusinessUnitIdAndCodeAndDeleted(businessUnitId, code, false);
         if (existsEntity) {
-            return  iCouponRepository.getReferenceByCodeAndDeleted(code, false);
+            return  iCouponRepository.getReferenceByBusinessUnitIdAndCodeAndDeleted(businessUnitId, code, false);
         }else{
             throw new IllegalArgumentException("Invalid coupon code.");
         }
@@ -133,7 +133,7 @@ public class CouponServiceImpl implements ICouponService {
      * @param   dto   the coupon request body.
      */
     public void existsCouponEntityByCode(CouponRequestDto dto) throws BadRequestException {
-        var existsEntity = iCouponRepository.existsByCodeAndDeleted(dto.getCode(), false);
+        var existsEntity = iCouponRepository.existsByBusinessUnitIdAndCodeAndDeleted(dto.getBusinessUnitId(),dto.getCode(), false);
         if (existsEntity)
             throw new BadRequestException("Coupon already exists.");
     }
@@ -143,8 +143,8 @@ public class CouponServiceImpl implements ICouponService {
      * @param totalAmount the total amount.
      * @param code        the coupon code.
      */
-    public CouponResponseDtoWithEntity applyDiscount(Double totalAmount, LocalDate bookingCheckIn, LocalDate bookingCheckOut, Long duration, String code) throws BadRequestException {
-        var entity = getCouponEntityNotDeletedByCode(code);
+    public CouponResponseDtoWithEntity applyDiscount(Long businessUnitId, Double totalAmount, LocalDate bookingCheckIn, LocalDate bookingCheckOut, Long duration, String code) throws BadRequestException {
+        var entity = getCouponEntityNotDeletedByCode(code, businessUnitId);
         var usageCouponCount = entity.getUsageCount();
         var usageCouponLimit = entity.getUsageLimit();
 
@@ -190,7 +190,7 @@ public class CouponServiceImpl implements ICouponService {
 
             var result = CouponResponseDtoWithEntity.builder()
                             .totalAmount(totalResult)
-                                    .entity(savedEntity)
+                                    .coupon(savedEntity)
                                             .build();
             log.info("Total amount changed: {}", totalResult);
             log.info("Total amount changed by type: {}", entity.getType());

@@ -11,7 +11,7 @@ import java.util.List;
 public interface ICouponService {
     CouponResponseDto createCoupon(CouponRequestDto dto) throws BadRequestException;
 
-    List<CouponResponseDto> getAllCoupons();
+    List<CouponResponseDto> getAllCoupons(Long id);
 
     CouponResponseDto editCoupon(CouponRequestDto dto, Long id) throws BadRequestException;
 
@@ -19,5 +19,5 @@ public interface ICouponService {
 
     CouponResponseDto getCouponById(Long id);
 
-    CouponResponseDtoWithEntity applyDiscount(Double totalAmount, LocalDate bookingCheckIn, LocalDate bookingCheckOut, Long duration, String code) throws BadRequestException;
+    CouponResponseDtoWithEntity applyDiscount(Long businessUnitId, Double totalAmount, LocalDate bookingCheckIn, LocalDate bookingCheckOut, Long duration, String code) throws BadRequestException;
 }

@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class CouponResponseDto {
     private Long id;
+    private Long businessUnitId;
     private Boolean deleted;
     private LocalDateTime creationDate;
     private LocalDateTime updateDate;

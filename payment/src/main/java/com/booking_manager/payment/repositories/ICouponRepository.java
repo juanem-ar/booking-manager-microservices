@@ -8,11 +8,11 @@ import java.util.List;
 
 @Repository
 public interface ICouponRepository extends JpaRepository<CouponEntity,Long> {
-   Boolean existsByCodeAndDeleted(String code, boolean deleted);
+   Boolean existsByBusinessUnitIdAndCodeAndDeleted(Long businessUnitId, String code, boolean deleted);
 
-   List<CouponEntity> findAllByDeleted(Boolean deleted);
+   List<CouponEntity> findAllByBusinessUnitIdAndDeleted(Long id, Boolean deleted);
 
    Boolean existsByIdAndDeleted(Long id, boolean deleted);
 
-   CouponEntity getReferenceByCodeAndDeleted(String code, boolean deleted);
+   CouponEntity getReferenceByBusinessUnitIdAndCodeAndDeleted(Long businessUnitId, String code, boolean deleted);
 }

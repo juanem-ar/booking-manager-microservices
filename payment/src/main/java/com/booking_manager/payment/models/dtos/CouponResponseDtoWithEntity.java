@@ -8,5 +8,5 @@ import lombok.Data;
 @Builder
 public class CouponResponseDtoWithEntity {
     private Double totalAmount;
-    private CouponEntity entity;
+    private CouponEntity coupon;
 }

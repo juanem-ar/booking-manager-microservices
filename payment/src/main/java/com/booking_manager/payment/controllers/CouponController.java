@@ -27,9 +27,9 @@ public class CouponController {
     public ResponseEntity<CouponResponseDto> getCouponById(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iCouponService.getCouponById(id));
     }
-    @GetMapping
-    public ResponseEntity<List<CouponResponseDto>> getAllCoupons(){
-        return ResponseEntity.status(HttpStatus.OK).body(iCouponService.getAllCoupons());
+    @GetMapping("/business-unit/{id}")
+    public ResponseEntity<List<CouponResponseDto>> getAllCouponsOfBusinessUnit(@PathVariable Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(iCouponService.getAllCoupons(id));
     }
     @PatchMapping("/{id}")
     public ResponseEntity<CouponResponseDto> editCoupon(@Validated @RequestBody CouponRequestDto dto, @PathVariable  Long id) throws Exception {
@@ -41,13 +41,14 @@ public class CouponController {
         return ResponseEntity.status(HttpStatus.OK).body(iCouponService.deleteCoupon(id));
     }
 
-    @PutMapping("/{totalAmount}/{bookingCheckIn}/{bookingCheckOut}/{duration}/{code}")
-    public CouponResponseDtoWithEntity applyCoupon(@PathVariable Double totalAmount,
+    @PutMapping("/{businessUnitId}/{totalAmount}/{bookingCheckIn}/{bookingCheckOut}/{duration}/{code}")
+    public CouponResponseDtoWithEntity applyCoupon(@PathVariable Long businessUnitId,
+                                                   @PathVariable Double totalAmount,
                                                    @PathVariable LocalDate bookingCheckIn,
                                                    @PathVariable LocalDate bookingCheckOut,
                                                    @PathVariable Long duration,
                                                    @PathVariable String code) throws Exception {
-        return iCouponService.applyDiscount(totalAmount, bookingCheckIn, bookingCheckOut, duration, code);
+        return iCouponService.applyDiscount(businessUnitId, totalAmount, bookingCheckIn, bookingCheckOut, duration, code);
     }
 
 }

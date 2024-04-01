@@ -45,7 +45,7 @@ public class PaymentServiceImpl implements IPaymentService {
         double partialPayment = dto.getPartialPayment();
 
         if (dto.getCode()!=null){
-            var couponResponse = iCouponService.applyDiscount(totalAmount, dto.getCheckIn(), dto.getCheckOut(), daysDuration, dto.getCode());
+            var couponResponse = iCouponService.applyDiscount(dto.getBusinessUnit(), totalAmount, dto.getCheckIn(), dto.getCheckOut(), daysDuration, dto.getCode());
             existsCouponEntity = true;
             totalAmount = couponResponse.getTotalAmount();
             couponEntity = couponResponse.getEntity();
