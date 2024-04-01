@@ -184,6 +184,8 @@ public class CouponServiceImpl implements ICouponService {
 
             if (entity.getUsageCount() == entity.getUsageLimit()) {
                 entity.setDeleted(Boolean.TRUE);
+                log.info("Coupon deleted by use limit.");
+            }else if(entity.getUsageCount() > entity.getUsageLimit()){
                 throw new BadRequestException("Your payment amount is bigger than total amount or this Coupon has been eliminated upon reaching its limit of uses");
             }
             var savedEntity = iCouponRepository.save(entity);

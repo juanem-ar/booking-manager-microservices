@@ -48,7 +48,7 @@ public class PaymentServiceImpl implements IPaymentService {
             var couponResponse = iCouponService.applyDiscount(dto.getBusinessUnit(), totalAmount, dto.getCheckIn(), dto.getCheckOut(), daysDuration, dto.getCode());
             existsCouponEntity = true;
             totalAmount = couponResponse.getTotalAmount();
-            couponEntity = couponResponse.getEntity();
+            couponEntity = couponResponse.getCoupon();
         }
 
         int percent = (int) ((partialPayment / totalAmount)*100);
