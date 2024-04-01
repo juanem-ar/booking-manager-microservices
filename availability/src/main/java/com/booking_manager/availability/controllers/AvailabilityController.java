@@ -23,7 +23,7 @@ public class AvailabilityController {
         return ResponseEntity.status(HttpStatus.CREATED).body(iStayService.createStay(dto));
     }
 
-    @PostMapping("/check")
+    @GetMapping("/check")
     public ResponseEntity<BaseResponse> isThePeriodUnavailable(@Validated @RequestBody StayRequestDto dto){
         return ResponseEntity.status(HttpStatus.OK).body(iStayService.checkAvailabilityByBookingService(dto));
     }

@@ -1,6 +1,5 @@
 package com.booking_manager.availability.models.dtos;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
@@ -21,7 +20,7 @@ public class StayRequestDto {
     @NotNull(message = "Rental Unit Id is required.")
     private Long rentalUnitId;
 
-    @Column(name = "business_unit_id")
+    @NotNull(message = "Business Unit Id is required.")
     private Long businessUnitId;
 
     private Long bookingId;
