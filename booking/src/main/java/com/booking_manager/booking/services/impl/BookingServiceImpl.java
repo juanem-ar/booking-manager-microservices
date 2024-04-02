@@ -31,10 +31,10 @@ public class BookingServiceImpl implements IBookingService {
     @Override
     public BookingResponseDto createBooking(BookingRequestDto dto) throws Exception {
         dto.validatePeriod(dto.getCheckIn(),dto.getCheckOut());
-        BaseResponse rentalUnitStatusErrorList = getRentalUnitStatus(dto);
+        RentalUnitComplexReponse rentalUnitStatusErrorList = getRentalUnitStatus(dto);
         //TODO obtener los servicios de la unidad de negocio para agregarlos al monto total. En vez de obtener un base response la linea superior, debe recibir un complex response con la entidad de BU
 
-        if (rentalUnitStatusErrorList != null && !rentalUnitStatusErrorList.hastErrors()){
+        if (rentalUnitStatusErrorList != null && !rentalUnitStatusErrorList.getBaseResponse().hastErrors()){
 
             var entity = iBookingMapper.toEntity(dto);
             entity.setDeleted(Boolean.FALSE);
@@ -59,8 +59,8 @@ public class BookingServiceImpl implements IBookingService {
                 throw new IllegalArgumentException("Service communication error: " + e.getMessage());
             }
         }else{
-            log.info("Error when trying to validate rental unit status: {}", rentalUnitStatusErrorList.errorMessage());
-            throw new IllegalArgumentException("Service communication error: " + Arrays.toString(rentalUnitStatusErrorList.errorMessage()));
+            log.info("Error when trying to validate rental unit status: {}", rentalUnitStatusErrorList.getBaseResponse().errorMessage());
+            throw new IllegalArgumentException("Service communication error: " + Arrays.toString(rentalUnitStatusErrorList.getBaseResponse().errorMessage()));
         }
     }
 
@@ -126,12 +126,12 @@ public class BookingServiceImpl implements IBookingService {
                 .block();
     }
 
-    private BaseResponse getRentalUnitStatus(BookingRequestDto dto) {
+    private RentalUnitComplexReponse getRentalUnitStatus(BookingRequestDto dto) {
         return this.webClientBuilder.build()
                 .get()
                 .uri("lb://business-service/api/rental-units/available/" + dto.getUnit())
                 .retrieve()
-                .bodyToMono(BaseResponse.class)
+                .bodyToMono(RentalUnitComplexReponse.class)
                 .block();
     }
 

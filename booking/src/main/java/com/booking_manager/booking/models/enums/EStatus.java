@@ -6,4 +6,6 @@ public enum EStatus {
     STATUS_ACCEPTED,
     STATUS_OPEN,
     STATUS_CLOSED,
+    STATUS_ENABLE,
+    STATUS_DISABLE
 }
