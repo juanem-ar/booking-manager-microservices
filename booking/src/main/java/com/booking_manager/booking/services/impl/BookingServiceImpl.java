@@ -35,6 +35,7 @@ public class BookingServiceImpl implements IBookingService {
         //TODO obtener los servicios de la unidad de negocio para agregarlos al monto total. En vez de obtener un base response la linea superior, debe recibir un complex response con la entidad de BU
 
         if (rentalUnitStatusErrorList != null && !rentalUnitStatusErrorList.hastErrors()){
+
             RateComplexResponse rateServiceResponse = getTotalAmount(dto);
             if (rateServiceResponse != null && !rateServiceResponse.getBaseResponse().hastErrors()){
                 //Se establece el monto total del request
@@ -137,10 +138,11 @@ public class BookingServiceImpl implements IBookingService {
 
     private RateComplexResponse getTotalAmount(BookingRequestDto dto) {
         return this.webClientBuilder.build()
-                .post()
+                .get()
                 .uri(uriBuilder -> uriBuilder
                         .host("rate-service")
                         .path("/api/rates/business-unit/"+dto.getBusinessUnit())
+                        .queryParam("rentalUnitId", dto.getUnit())
                         .queryParam("checkIn", dto.getCheckIn())
                         .queryParam("checkOut", dto.getCheckOut())
                         .build()

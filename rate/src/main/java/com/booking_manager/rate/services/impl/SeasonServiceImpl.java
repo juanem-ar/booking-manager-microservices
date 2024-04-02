@@ -1,6 +1,8 @@
 package com.booking_manager.rate.services.impl;
 
 import com.booking_manager.rate.mappers.ISeasonMapper;
+import com.booking_manager.rate.models.dtos.BaseResponse;
+import com.booking_manager.rate.models.dtos.SeasonComplexResponse;
 import com.booking_manager.rate.models.dtos.SeasonRequestDto;
 import com.booking_manager.rate.models.dtos.SeasonResponseDto;
 import com.booking_manager.rate.models.entities.DeletedEntity;
@@ -79,12 +81,12 @@ public class SeasonServiceImpl implements ISeasonService {
     }
 
     @Override
-    public SeasonEntity getSeasonEntityNotDeletedByBusinessUnitIdAndDate(Long businessUnitId, LocalDate date) {
+    public SeasonComplexResponse getSeasonEntityNotDeletedByBusinessUnitIdAndDate(Long businessUnitId, LocalDate date) {
         var entity = iSeasonRepository.findByBusinessUnitAndDeletedAndStartDateLessThanAndEndDateGreaterThanOrOrStartDateEqualsOrEndDateEquals (businessUnitId, false, date , date, date, date);
         if (entity != null){
-            return entity;
+            return SeasonComplexResponse.builder().season(entity).baseResponse(new BaseResponse(null)).build();
         }else{
-            throw new IllegalArgumentException("Date without prices.");
+            return SeasonComplexResponse.builder().baseResponse(new BaseResponse(new String[]{"Dates without price."})).build();
         }
 
     }

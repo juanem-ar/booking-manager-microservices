@@ -1,5 +1,6 @@
 package com.booking_manager.rate.services;
 
+import com.booking_manager.rate.models.dtos.SeasonComplexResponse;
 import com.booking_manager.rate.models.dtos.SeasonRequestDto;
 import com.booking_manager.rate.models.dtos.SeasonResponseDto;
 import com.booking_manager.rate.models.entities.SeasonEntity;
@@ -14,5 +15,5 @@ public interface ISeasonService {
     SeasonResponseDto editSeason(Long id, SeasonRequestDto dto);
     SeasonEntity getSeasonEntityNotDeletedById(Long id);
     List<SeasonResponseDto> getAllSeasonByBusinessUnitId(Long id);
-    SeasonEntity getSeasonEntityNotDeletedByBusinessUnitIdAndDate(Long businessUnitId, LocalDate date);
+    SeasonComplexResponse getSeasonEntityNotDeletedByBusinessUnitIdAndDate(Long businessUnitId, LocalDate date);
 }

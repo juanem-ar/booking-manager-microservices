@@ -1,10 +1,7 @@
 package com.booking_manager.rate.services.impl;
 
 import com.booking_manager.rate.mappers.IRateMapper;
-import com.booking_manager.rate.models.dtos.BaseResponse;
-import com.booking_manager.rate.models.dtos.RateComplexResponse;
-import com.booking_manager.rate.models.dtos.RateRequestDto;
-import com.booking_manager.rate.models.dtos.RateResponseDto;
+import com.booking_manager.rate.models.dtos.*;
 import com.booking_manager.rate.models.entities.DeletedEntity;
 import com.booking_manager.rate.models.entities.RateEntity;
 import com.booking_manager.rate.models.enums.EEntityTypes;
@@ -19,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -73,32 +71,37 @@ public class RateServiceImpl implements IRateService {
     }
 
     @Override
-    public RateComplexResponse getRateByStay(Long businessUnitId, Long rentalUnitId, LocalDate checkIn, LocalDate checkOut) {
+    public TotalAmountComplexResponse getRateByStay(Long businessUnitId, Long rentalUnitId, LocalDate checkIn, LocalDate checkOut) {
         List<String> errorList = new ArrayList<>();
         double totalPrice = 0.0;
         LocalDate currenDate = checkIn;
 
         while (!currenDate.isEqual(checkOut)){
-            var rateDay = getRateForDay(businessUnitId,rentalUnitId,currenDate);
-            if (rateDay!=null){
-                totalPrice+=rateDay.getRate();
+            RateComplexResponse rateDay = getRateForDay(businessUnitId,rentalUnitId,currenDate);
+            if (rateDay != null && !rateDay.getBaseResponse().hastErrors()){
+                totalPrice+=rateDay.getRate().getRate();
             }else{
-                errorList.add("error to get rate of date " + currenDate);
+                errorList.add("Error to get rates. " + Arrays.toString(rateDay.getBaseResponse().errorMessage()));
             }
             currenDate = currenDate.plusDays(1);
         }
-        var resultWithErrors = RateComplexResponse.builder().baseResponse(new BaseResponse(errorList.toArray(new String[0]))).build();
-        var resultWithoutErrors = RateComplexResponse.builder().totalAmount(totalPrice).baseResponse(new BaseResponse(null)).build();
+        var resultWithErrors = TotalAmountComplexResponse.builder().baseResponse(new BaseResponse(errorList.toArray(new String[0]))).build();
+        var resultWithoutErrors = TotalAmountComplexResponse.builder().totalAmount(totalPrice).baseResponse(new BaseResponse(null)).build();
         return errorList.size() > 0 ?  resultWithErrors : resultWithoutErrors;
     }
 
-    public RateEntity getRateForDay(Long businessUnitId, Long rentalUnitId, LocalDate date){
-        var seasonEntity = iSeasonService.getSeasonEntityNotDeletedByBusinessUnitIdAndDate(businessUnitId, date);
-        var rateEntity = iRateRepository.findByBusinessUnitAndRentalUnitAndDeletedAndSeasonId(businessUnitId, rentalUnitId, false, seasonEntity.getId());
-        if (rateEntity != null)
-            return rateEntity;
-        else
-            throw new IllegalArgumentException("Bad Request");
+    public RateComplexResponse getRateForDay(Long businessUnitId, Long rentalUnitId, LocalDate date){
+        SeasonComplexResponse seasonEntityResponse = iSeasonService.getSeasonEntityNotDeletedByBusinessUnitIdAndDate(businessUnitId, date);
+        if (seasonEntityResponse != null && !seasonEntityResponse.getBaseResponse().hastErrors()){
+            var rateEntity = iRateRepository.findByBusinessUnitAndRentalUnitAndDeletedAndSeasonId(businessUnitId, rentalUnitId, false, seasonEntityResponse.getSeason().getId());
+            if (rateEntity != null){
+                return RateComplexResponse.builder().rate(rateEntity).baseResponse(new BaseResponse(null)).build();
+            }else{
+                return RateComplexResponse.builder().baseResponse(new BaseResponse(new String[]{"Error to get prices of seasons"})).build();
+            }
+        }else{
+            return RateComplexResponse.builder().baseResponse(seasonEntityResponse.getBaseResponse()).build();
+        }
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.booking_manager.rate.controllers;
 
-import com.booking_manager.rate.models.dtos.RateComplexResponse;
+import com.booking_manager.rate.models.dtos.TotalAmountComplexResponse;
 import com.booking_manager.rate.models.dtos.RateRequestDto;
 import com.booking_manager.rate.models.dtos.RateResponseDto;
 import com.booking_manager.rate.services.IRateService;
@@ -26,10 +26,10 @@ public class RateController {
         return ResponseEntity.status(HttpStatus.OK).body(iRateService.getRate(id));
     }
     @GetMapping("/business-unit/{businessUnitId}")
-    public ResponseEntity<RateComplexResponse> getRateByBusinessUnitIdAndStay(@PathVariable Long businessUnitId,
-                                                                              @RequestParam(required = true) Long rentalUnitId,
-                                                                              @RequestParam(required = true) LocalDate checkIn,
-                                                                              @RequestParam(required = true) LocalDate checkOut){
+    public ResponseEntity<TotalAmountComplexResponse> getRateByBusinessUnitIdAndStay(@PathVariable Long businessUnitId,
+                                                                                     @RequestParam(required = true) Long rentalUnitId,
+                                                                                     @RequestParam(required = true) LocalDate checkIn,
+                                                                                     @RequestParam(required = true) LocalDate checkOut){
         return ResponseEntity.status(HttpStatus.OK).body(iRateService.getRateByStay(businessUnitId,rentalUnitId, checkIn,checkOut));
     }
     @PatchMapping("/{id}")
