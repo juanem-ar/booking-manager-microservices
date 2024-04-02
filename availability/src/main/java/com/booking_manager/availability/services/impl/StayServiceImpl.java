@@ -5,6 +5,7 @@ import com.booking_manager.availability.models.dtos.BaseResponse;
 import com.booking_manager.availability.models.dtos.StayResponseDto;
 import com.booking_manager.availability.models.dtos.StayRequestDto;
 import com.booking_manager.availability.models.entities.DeletedEntity;
+import com.booking_manager.availability.models.entities.StayEntity;
 import com.booking_manager.availability.repositories.IDeletedRepository;
 import com.booking_manager.availability.repositories.IStayRepository;
 import com.booking_manager.availability.services.IStayService;
@@ -41,9 +42,17 @@ public class StayServiceImpl implements IStayService {
         return errorList.size() > 0 ? new BaseResponse(errorList.toArray(new String[0])) : new BaseResponse(null);
     }
     @Override
-    public List<StayResponseDto> getAllStays(Long id) throws Exception {
+    public List<StayResponseDto> getAllStaysByRentalUnitId(Long id) throws Exception {
         var staysList = iStayRepository.findAllByDeletedAndRentalUnitId(false, id);
-        if(staysList.size() > 0)
+        if(!staysList.isEmpty())
+            return iStayMapper.toStayResponseDtoList(staysList);
+        else
+            return new ArrayList<StayResponseDto>();
+    }
+    @Override
+    public List<StayResponseDto> getAllStaysByBookingId(Long id) throws Exception {
+        var staysList = iStayRepository.findAllByBookingIdAndDeleted(id, false);
+        if(!staysList.isEmpty())
             return iStayMapper.toStayResponseDtoList(staysList);
         else
             return new ArrayList<StayResponseDto>();
@@ -53,20 +62,37 @@ public class StayServiceImpl implements IStayService {
         var errorList = new ArrayList<String>();
         var entity = iStayRepository.findByBookingIdAndDeleted(id, false);
         if (entity!=null){
-            entity.setDeleted(Boolean.TRUE);
-            var entitySaved = iStayRepository.save(entity);
-            var entityDeleted = DeletedEntity.builder()
-                    .stayId(entitySaved.getId())
-                    .bookingId(entitySaved.getBookingId())
-                    .build();
-            var savedEntityDeleted = iDeletedRepository.save(entityDeleted);
-            log.info("Stay has been deleted: {}", entitySaved);
-            log.info("New Entity Save (DeleteEntity): {}", savedEntityDeleted);
+            setDeletedAndSaveEntity(entity);
         }else{
             errorList.add("Invalid Booking Id.");
         }
         return errorList.size() > 0 ? new BaseResponse(errorList.toArray(new String[0])) : new BaseResponse(null);
     }
+
+    public void setDeletedAndSaveEntity(StayEntity entity){
+        entity.setDeleted(Boolean.TRUE);
+        var entitySaved = iStayRepository.save(entity);
+        var entityDeleted = DeletedEntity.builder()
+                .stayId(entitySaved.getId())
+                .bookingId(entitySaved.getBookingId())
+                .build();
+        var savedEntityDeleted = iDeletedRepository.save(entityDeleted);
+        log.info("Stay has been deleted: {}", entitySaved);
+        log.info("New Entity Save (DeleteEntity): {}", savedEntityDeleted);
+    }
+
+    @Override
+    public BaseResponse deleteStayById(Long id) {
+        var errorList = new ArrayList<String>();
+        var entity = iStayRepository.findByIdAndDeleted(id, false);
+        if (entity!=null){
+            setDeletedAndSaveEntity(entity);
+        }else {
+            errorList.add("Invalid Id.");
+        }
+        return errorList.size() > 0 ? new BaseResponse(errorList.toArray(new String[0])) : new BaseResponse(null);
+    }
+
     public BaseResponse checkAvailabilityByBookingService(StayRequestDto dto){
         var errorList = new ArrayList<String>();
         var isUnavailable = checkAvailability(dto);

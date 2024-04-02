@@ -17,4 +17,5 @@ public interface IBookingMapper {
     List<BookingResponseDtoList> bookingListToBookingResponseDtoList(List<BookingEntity> bookingList);
     BookingEntity toEntity(BookingRequestDto dto);
     BookingResponseDto toBookingResponseDto(BookingEntity entity);
+    BookingResponseDtoList toBookingResponseDtoList(BookingEntity entity);
 }

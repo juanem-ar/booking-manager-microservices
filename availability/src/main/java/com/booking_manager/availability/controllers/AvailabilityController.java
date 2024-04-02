@@ -30,10 +30,18 @@ public class AvailabilityController {
 
     @GetMapping("/{id}")
     public ResponseEntity<List<StayResponseDto>> getAllStaysByRentalUnitId(@PathVariable Long id) throws Exception {
-        return ResponseEntity.status(HttpStatus.OK).body(iStayService.getAllStays(id));
+        return ResponseEntity.status(HttpStatus.OK).body(iStayService.getAllStaysByRentalUnitId(id));
+    }
+    @GetMapping("/booking/{id}")
+    public ResponseEntity<List<StayResponseDto>> getAllStaysByBookingId(@PathVariable Long id) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(iStayService.getAllStaysByBookingId(id));
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<BaseResponse> deleteStay(@PathVariable Long id){
+    public ResponseEntity<BaseResponse> deleteStayByRentalUnit(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iStayService.deleteStay(id));
+    }
+    @DeleteMapping("/stay/{id}")
+    public ResponseEntity<BaseResponse> deleteStay(@PathVariable Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(iStayService.deleteStayById(id));
     }
 }

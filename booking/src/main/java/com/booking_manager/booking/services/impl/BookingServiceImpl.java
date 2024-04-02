@@ -72,6 +72,7 @@ public class BookingServiceImpl implements IBookingService {
                         response.setDebit(paymentResponse.getDebit());
                         response.setTotalAmount(paymentResponse.getTotalAmount());
                         response.setPaymentStatus(paymentResponse.getStatus());
+                        response.setCouponCode(dto.getCode());
                         //TODO implementar envios de emails con kafka
                         log.info("Booking created: {}", entitySaved);
                         return response;
@@ -84,7 +85,7 @@ public class BookingServiceImpl implements IBookingService {
                     throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedStay.errorMessage()));
                 }
             }catch (Exception e){
-                deleteStay(entitySaved.getId());
+                deleteStayByBookingId(entitySaved.getId());
                 //TODO mejorar esta toma del error. Se precisa mostrar los errores q arrastran las listas de errores.
                 throw new IllegalArgumentException("Service communication error: " + e.getMessage());
             }
@@ -154,14 +155,14 @@ public class BookingServiceImpl implements IBookingService {
     }
 
     @Override
-    public BookingResponseDto getBooking(Long id) throws BadRequestException {
+    public BookingResponseDtoList getBooking(Long id) throws BadRequestException {
         var entity = getBookingEntity(id);
-        return iBookingMapper.toBookingResponseDto(entity);
+        return iBookingMapper.toBookingResponseDtoList(entity);
     }
 
     @Override
-    public List<BookingResponseDtoList> getAllBooking(Long id) {
-        var bookingList = iBookingRepository.findAllByIdAndDeleted(id, false);
+    public List<BookingResponseDtoList> getAllBookingByRentalUnit(Long id) {
+        var bookingList = iBookingRepository.findAllByUnitAndDeleted(id, false);
         return iBookingMapper.bookingListToBookingResponseDtoList(bookingList);
     }
 
@@ -169,7 +170,7 @@ public class BookingServiceImpl implements IBookingService {
     public String deleteBooking(Long id) throws BadRequestException {
         var entity = getBookingEntity(id);
 
-        BaseResponse deleteStayMsg = deleteStay(entity.getId());
+        BaseResponse deleteStayMsg = deleteStayByBookingId(entity.getId());
 
         if (deleteStayMsg != null && !deleteStayMsg.hastErrors()){
 
@@ -199,7 +200,7 @@ public class BookingServiceImpl implements IBookingService {
         }
     }
 
-    private BaseResponse deleteStay(Long id) {
+    private BaseResponse deleteStayByBookingId(Long id) {
         return this.webClientBuilder.build()
                 .delete()
                 .uri("lb://availability-service/api/availabilities/" + id)

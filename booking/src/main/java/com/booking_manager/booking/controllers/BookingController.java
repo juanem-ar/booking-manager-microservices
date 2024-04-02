@@ -28,12 +28,12 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(throwable.getMessage());
     }
     @GetMapping("/{id}")
-    public ResponseEntity<BookingResponseDto> getBooking(@PathVariable Long id) throws BadRequestException {
+    public ResponseEntity<BookingResponseDtoList> getBooking(@PathVariable Long id) throws BadRequestException {
         return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getBooking(id));
     }
     @GetMapping("/rental-unit/{id}")
-    public ResponseEntity<List<BookingResponseDtoList>> getAllBooking(@PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getAllBooking(id));
+    public ResponseEntity<List<BookingResponseDtoList>> getAllBookingByRentalUnit(@PathVariable Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getAllBookingByRentalUnit(id));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteBooking(@PathVariable Long id) throws BadRequestException {
