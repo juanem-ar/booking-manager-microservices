@@ -32,10 +32,12 @@ public class AvailabilityController {
     public ResponseEntity<List<StayResponseDto>> getAllStaysByRentalUnitId(@PathVariable Long id) throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(iStayService.getAllStaysByRentalUnitId(id));
     }
+    /* Codigo utilizado para corregir un error de persistencia doble
     @GetMapping("/booking/{id}")
     public ResponseEntity<List<StayResponseDto>> getAllStaysByBookingId(@PathVariable Long id) throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(iStayService.getAllStaysByBookingId(id));
     }
+    */
     @DeleteMapping("/{id}")
     public ResponseEntity<BaseResponse> deleteStayByRentalUnit(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iStayService.deleteStay(id));

@@ -46,40 +46,9 @@ public class BookingServiceImpl implements IBookingService {
 
                 if (savedStay != null && !savedStay.hastErrors()){
 
-                    RateComplexResponse rateServiceResponse = getTotalAmount(dto);
-                    if (rateServiceResponse != null && !rateServiceResponse.getBaseResponse().hastErrors()){
-                        //Se establece el monto total del request
-                        dto.setTotalAmount(rateServiceResponse.getTotalAmount());
-                    }else{
-                        throw new IllegalArgumentException("Rate Service communication error: " + Arrays.toString(rateServiceResponse.getBaseResponse().errorMessage()));
-                    }
+                    setTotalAmount(dto);
 
-                    PaymentComplexResponse savedPayment = savePayment(dto, entitySaved.getId());
-
-                    if (savedPayment.getBaseResponse() != null && !savedPayment.getBaseResponse().hastErrors()) {
-                        var paymentResponse = savedPayment.getObject();
-
-                        //TODO EL ESTADO ACEPTADO DEBE SER ESTABLECIDO CUANDO SE CONFIRMA EL PAGO
-                        entitySaved.setStatus(EStatus.STATUS_ACCEPTED);
-
-                        iBookingRepository.save(entity);
-                        var response = iBookingMapper.toBookingResponseDto(entitySaved);
-                        response.setCheckIn(dto.getCheckIn());
-                        response.setCheckOut(dto.getCheckOut());
-                        response.setCostPerNight(paymentResponse.getCostPerNight());
-                        response.setPartialPayment(paymentResponse.getPartialPayment());
-                        response.setPercent(paymentResponse.getPercent());
-                        response.setDebit(paymentResponse.getDebit());
-                        response.setTotalAmount(paymentResponse.getTotalAmount());
-                        response.setPaymentStatus(paymentResponse.getStatus());
-                        response.setCouponCode(dto.getCode());
-                        //TODO implementar envios de emails con kafka
-                        log.info("Booking created: {}", entitySaved);
-                        return response;
-                    }else{
-                        log.info("Error when trying to save the payment: {}", savedPayment.getBaseResponse().errorMessage());
-                        throw new IllegalArgumentException("Service communication error: " + Arrays.stream(savedPayment.getBaseResponse().errorMessage()).iterator().toString().toString());
-                    }
+                    return savePaymentAndReturnBookingResponse(dto, entitySaved);
                 }else{
                     log.info("Error when trying to save the stay: {}", savedStay.errorMessage());
                     throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedStay.errorMessage()));
@@ -92,6 +61,50 @@ public class BookingServiceImpl implements IBookingService {
         }else{
             log.info("Error when trying to validate rental unit status: {}", rentalUnitStatusErrorList.errorMessage());
             throw new IllegalArgumentException("Service communication error: " + Arrays.toString(rentalUnitStatusErrorList.errorMessage()));
+        }
+    }
+
+    private BookingResponseDto savePaymentAndReturnBookingResponse(BookingRequestDto dto, BookingEntity entitySaved) {
+        PaymentComplexResponse savedPayment = savePayment(dto, entitySaved.getId());
+
+        if (savedPayment.getBaseResponse() != null && !savedPayment.getBaseResponse().hastErrors()) {
+            var paymentResponse = savedPayment.getObject();
+
+            //TODO EL ESTADO ACEPTADO DEBE SER ESTABLECIDO CUANDO SE CONFIRMA EL PAGO
+            entitySaved.setStatus(EStatus.STATUS_ACCEPTED);
+            //todo aca salia "entity" como parametro
+            iBookingRepository.save(entitySaved);
+            var response = settingAdittionalPropertiesToBookingResponseDto(dto, entitySaved, paymentResponse);
+            //TODO implementar envios de emails con kafka
+            log.info("Booking created: {}", entitySaved);
+            return response;
+        }else{
+            log.info("Error when trying to save the payment: {}", savedPayment.getBaseResponse().errorMessage());
+            throw new IllegalArgumentException("Service communication error: " + Arrays.stream(savedPayment.getBaseResponse().errorMessage()).iterator().toString().toString());
+        }
+    }
+
+    private BookingResponseDto settingAdittionalPropertiesToBookingResponseDto(BookingRequestDto dto, BookingEntity entitySaved, PaymentResponseDto paymentResponse) {
+        var response = iBookingMapper.toBookingResponseDto(entitySaved);
+        response.setCheckIn(dto.getCheckIn());
+        response.setCheckOut(dto.getCheckOut());
+        response.setCostPerNight(paymentResponse.getCostPerNight());
+        response.setPartialPayment(paymentResponse.getPartialPayment());
+        response.setPercent(paymentResponse.getPercent());
+        response.setDebit(paymentResponse.getDebit());
+        response.setTotalAmount(paymentResponse.getTotalAmount());
+        response.setPaymentStatus(paymentResponse.getStatus());
+        response.setCouponCode(dto.getCode());
+        return response;
+    }
+
+    private void setTotalAmount(BookingRequestDto dto) {
+        RateComplexResponse rateServiceResponse = getTotalAmount(dto);
+        if (rateServiceResponse != null && !rateServiceResponse.getBaseResponse().hastErrors()){
+            //Se establece el monto total del request
+            dto.setTotalAmount(rateServiceResponse.getTotalAmount());
+        }else{
+            throw new IllegalArgumentException("Rate Service communication error: " + Arrays.toString(rateServiceResponse.getBaseResponse().errorMessage()));
         }
     }
 
@@ -115,13 +128,8 @@ public class BookingServiceImpl implements IBookingService {
 
     private BaseResponse getRentalUnitStatus(BookingRequestDto dto) {
         return this.webClientBuilder.build()
-                .post()
-                .uri("lb://business-service/api/rental-units/available")
-                .bodyValue(
-                        AvailabilityRentalUnitRequestDto.builder()
-                                .id(dto.getUnit())
-                                .build()
-                )
+                .get()
+                .uri("lb://business-service/api/rental-units/available/" + dto.getUnit())
                 .retrieve()
                 .bodyToMono(BaseResponse.class)
                 .block();

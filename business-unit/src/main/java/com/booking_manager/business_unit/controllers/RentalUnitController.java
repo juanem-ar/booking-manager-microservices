@@ -1,7 +1,6 @@
 package com.booking_manager.business_unit.controllers;
 
-import com.booking_manager.business_unit.models.dtos.AvailabilityRentalUnitRequestDto;
-import com.booking_manager.business_unit.models.dtos.BaseResponse;
+import com.booking_manager.business_unit.models.dtos.RentalUnitComplexReponse;
 import com.booking_manager.business_unit.models.dtos.RentalUnitRequestDto;
 import com.booking_manager.business_unit.models.dtos.RentalUnitResponseDto;
 import com.booking_manager.business_unit.services.IRentalUnitService;
@@ -31,9 +30,9 @@ public class RentalUnitController {
     public ResponseEntity<List<RentalUnitResponseDto>> getAllRentalUnitByBusinessUnitId(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.getAllRentalUnitResponseDtoByBusinessUnitId(id));
     }
-    @PostMapping("/available")
-    public ResponseEntity<BaseResponse> existsRentalUnitByAvailableRequestDto(@RequestBody AvailabilityRentalUnitRequestDto dto){
-        return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.existsRentalUnitByAvailableRequestDto(dto));
+    @GetMapping("/available/{id}")
+    public ResponseEntity<RentalUnitComplexReponse> existsRentalUnitByAvailableRequestDto(@PathVariable Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(iRentalUnitService.existsRentalUnitByAvailableRequestDto(id));
     }
     @PatchMapping("/{id}")
     public ResponseEntity<RentalUnitResponseDto> editRentalUnit(@Validated @RequestBody RentalUnitRequestDto dto, @PathVariable Long id){

@@ -1,8 +1,8 @@
 package com.booking_manager.business_unit.services.impl;
 
 import com.booking_manager.business_unit.mappers.IRentalUnitMapper;
-import com.booking_manager.business_unit.models.dtos.AvailabilityRentalUnitRequestDto;
 import com.booking_manager.business_unit.models.dtos.BaseResponse;
+import com.booking_manager.business_unit.models.dtos.RentalUnitComplexReponse;
 import com.booking_manager.business_unit.models.dtos.RentalUnitRequestDto;
 import com.booking_manager.business_unit.models.dtos.RentalUnitResponseDto;
 import com.booking_manager.business_unit.models.entities.DeletedEntity;
@@ -131,14 +131,18 @@ public class RentalUnitServiceImpl implements IRentalUnitService {
     }
 
     @Override
-    public BaseResponse existsRentalUnitByAvailableRequestDto(AvailabilityRentalUnitRequestDto dto) {
+    public RentalUnitComplexReponse existsRentalUnitByAvailableRequestDto(Long id) {
         var errorList = new ArrayList<String>();
-        if (!exists(dto.id())){
+        var entity = iRentalUnitRepository.getReferenceByIdAndDeleted(id, false);
+        if (!exists(id)){
             errorList.add("Invalid Rental Unit Id.");
-        }else if (iRentalUnitRepository.getReferenceById(dto.id()).getStatus() == EStatus.STATUS_DISABLE ) {
+        }else if (entity.getStatus() == EStatus.STATUS_DISABLE ) {
             errorList.add("The Rental Unit is disabled.");
         }
-        return errorList.size() > 0 ? new BaseResponse(errorList.toArray(new String[0])) : new BaseResponse(null);
+        var mappedEntity = iRentalUnitMapper.toRentalUnitResponseDto(entity);
+        var resultWithErrors = RentalUnitComplexReponse.builder().baseResponse(new BaseResponse(errorList.toArray(new String[0]))).build();
+        var resultWithoutErrors = RentalUnitComplexReponse.builder().rentalUnit(mappedEntity).baseResponse(new BaseResponse(null)).build();
+        return errorList.size() > 0 ? resultWithErrors : resultWithoutErrors;
     }
 
     public boolean exists(Object object){
