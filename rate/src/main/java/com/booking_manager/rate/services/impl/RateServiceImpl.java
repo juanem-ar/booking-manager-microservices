@@ -93,7 +93,8 @@ public class RateServiceImpl implements IRateService {
     public RateComplexResponse getRateForDay(Long businessUnitId, Long rentalUnitId, LocalDate date){
         SeasonComplexResponse seasonEntityResponse = iSeasonService.getSeasonEntityNotDeletedByBusinessUnitIdAndDate(businessUnitId, date);
         if (seasonEntityResponse != null && !seasonEntityResponse.getBaseResponse().hastErrors()){
-            var rateEntity = iRateRepository.findByBusinessUnitAndRentalUnitAndDeletedAndSeasonId(businessUnitId, rentalUnitId, false, seasonEntityResponse.getSeason().getId());
+            var seasonEntity = seasonEntityResponse.getSeason();
+            var rateEntity = iRateRepository.getReferenceByBusinessUnitAndRentalUnitAndDeletedAndSeason(businessUnitId, rentalUnitId, false, seasonEntity);
             if (rateEntity != null){
                 return RateComplexResponse.builder().rate(rateEntity).baseResponse(new BaseResponse(null)).build();
             }else{

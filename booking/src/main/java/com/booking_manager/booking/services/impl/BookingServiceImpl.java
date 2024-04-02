@@ -36,13 +36,6 @@ public class BookingServiceImpl implements IBookingService {
 
         if (rentalUnitStatusErrorList != null && !rentalUnitStatusErrorList.hastErrors()){
 
-            RateComplexResponse rateServiceResponse = getTotalAmount(dto);
-            if (rateServiceResponse != null && !rateServiceResponse.getBaseResponse().hastErrors()){
-                //Se establece el monto total del request
-                dto.setTotalAmount(rateServiceResponse.getTotalAmount());
-            }else{
-                throw new IllegalArgumentException("Rate Service communication error: " + Arrays.toString(rateServiceResponse.getBaseResponse().errorMessage()));
-            }
             var entity = iBookingMapper.toEntity(dto);
             entity.setDeleted(Boolean.FALSE);
             entity.setStatus(EStatus.STATUS_IN_PROCESS);
@@ -52,6 +45,14 @@ public class BookingServiceImpl implements IBookingService {
                 BaseResponse savedStay = checkAvailabilityAndSaveStay(dto, entitySaved.getId());
 
                 if (savedStay != null && !savedStay.hastErrors()){
+
+                    RateComplexResponse rateServiceResponse = getTotalAmount(dto);
+                    if (rateServiceResponse != null && !rateServiceResponse.getBaseResponse().hastErrors()){
+                        //Se establece el monto total del request
+                        dto.setTotalAmount(rateServiceResponse.getTotalAmount());
+                    }else{
+                        throw new IllegalArgumentException("Rate Service communication error: " + Arrays.toString(rateServiceResponse.getBaseResponse().errorMessage()));
+                    }
 
                     PaymentComplexResponse savedPayment = savePayment(dto, entitySaved.getId());
 
