@@ -12,6 +12,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -35,6 +36,9 @@ public class BookingEntity {
 
     private Long unit;
     private Long businessUnit;
+
+    @ElementCollection
+    private List<Long> serviceIdList;
 
     @NotNull(message = "Amount of people is required")
     @Column(name = "amount_of_people")

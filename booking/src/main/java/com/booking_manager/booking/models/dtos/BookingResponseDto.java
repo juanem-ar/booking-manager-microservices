@@ -5,11 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
 public class BookingResponseDto {
     private Long id;
+    private LocalDate creationDate;
     private Long unit;
     private Long businessUnit;
     private int amountOfPeople;
@@ -23,13 +25,17 @@ public class BookingResponseDto {
     private Double totalAmount;
     private EStatus paymentStatus;
     private String couponCode;
+    private List<Long> serviceIdList;
     private ServiceTotalAmountDto services;
     @Override
     public String toString() {
         return "RESERVATION ID: " + this.id + "\n" +
-                "Unit id: " + this.getUnit() + "\n" +
-                "Amount of people: " + this.amountOfPeople + "\n" +
+                "Creation Date: " + this.creationDate + "\n" +
+                "Unit id: " + this.unit + "\n" +
+                "Business Unit id: " + this.businessUnit + "\n" +
                 "Check-in: " + this.checkIn + "\n" +
-                "check-out: " + this.checkOut + "\n";
+                "Check-out: " + this.checkOut + "\n" +
+                "Amount of people: " + this.amountOfPeople + "\n" +
+                "Service list: " + this.serviceIdList;
     }
 }

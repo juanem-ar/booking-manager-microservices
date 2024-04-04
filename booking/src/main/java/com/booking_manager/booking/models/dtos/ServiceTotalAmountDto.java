@@ -14,5 +14,6 @@ import java.util.List;
 public class ServiceTotalAmountDto {
     private Double totalAmount;
     private List<ServicesPriceDto> services;
+    private List<Long> serviceIdList;
     private List<String> hastErrors;
 }

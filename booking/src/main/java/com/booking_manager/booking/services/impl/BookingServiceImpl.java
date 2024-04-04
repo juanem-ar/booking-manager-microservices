@@ -48,6 +48,10 @@ public class BookingServiceImpl implements IBookingService {
             var entity = iBookingMapper.toEntity(dto);
             entity.setDeleted(Boolean.FALSE);
             entity.setStatus(EStatus.STATUS_IN_PROCESS);
+            //TODO PROBAR si se registran los id
+            if (totalAmountOfServices != null) {
+                entity.setServiceIdList(totalAmountOfServices.getServiceIdList());
+            }
             var entitySaved = iBookingRepository.save(entity);
 
             try{
@@ -59,6 +63,7 @@ public class BookingServiceImpl implements IBookingService {
                         setTotalAmount(dto);
                     else
                         setTotalAmount(dto, totalAmountOfServices.getTotalAmount());
+                    //TODO VALIDAR Q DIFERENCIE LAS RESERVAS CON SERVICIOS INCLUIDOS CON LAS QUE NO TIENEN SERVICIOS INCLUIDOS
 
                     var response = savePaymentAndReturnBookingResponse(dto, entitySaved);
                     response.setServices(totalAmountOfServices);
@@ -82,6 +87,7 @@ public class BookingServiceImpl implements IBookingService {
         var totalAmount = 0.0;
         List<ServicesPriceDto> servicesList = new ArrayList<>();
         List<String> errorList = new ArrayList<>();
+        List<Long> servicesIdList = new ArrayList<>();
         boolean serviceFound = false;
 
         for (ServicesPriceDto serviceDTO: dto.getServices()) {
@@ -93,6 +99,7 @@ public class BookingServiceImpl implements IBookingService {
                     totalAmount+=serviceRU.getPrice();
                     serviceFound = true;
                     servicesList.add(serviceDTO);
+                    servicesIdList.add(serviceDTO.getId());
                     break;
                 }
             }
@@ -100,7 +107,7 @@ public class BookingServiceImpl implements IBookingService {
                 errorList.add("The service id " + serviceId + " was not added.");
             }
         }
-        return ServiceTotalAmountDto.builder().totalAmount(totalAmount).services(servicesList).hastErrors(errorList).build();
+        return ServiceTotalAmountDto.builder().totalAmount(totalAmount).services(servicesList).serviceIdList(servicesIdList).hastErrors(errorList).build();
     }
 
     private BookingResponseDto savePaymentAndReturnBookingResponse(BookingRequestDto dto, BookingEntity entitySaved) {
