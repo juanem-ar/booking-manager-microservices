@@ -15,8 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -31,10 +33,17 @@ public class BookingServiceImpl implements IBookingService {
     @Override
     public BookingResponseDto createBooking(BookingRequestDto dto) throws Exception {
         dto.validatePeriod(dto.getCheckIn(),dto.getCheckOut());
-        RentalUnitComplexReponse rentalUnitStatusErrorList = getRentalUnitStatus(dto);
-        //TODO obtener los servicios de la unidad de negocio para agregarlos al monto total. En vez de obtener un base response la linea superior, debe recibir un complex response con la entidad de BU
+        RentalUnitComplexReponse rentalUnitResponse = getRentalUnitStatus(dto);
+        ServiceTotalAmountDto totalAmountOfServices = null;
+        boolean bookingWithServices = false;
 
-        if (rentalUnitStatusErrorList != null && !rentalUnitStatusErrorList.getBaseResponse().hastErrors()){
+        if (dto.getServices() != null) {
+            totalAmountOfServices = getTotalAmountOfServices(rentalUnitResponse, dto);
+            bookingWithServices = true;
+            // TODO Aun no se agrego este valor al total de la reserva.
+        }
+
+        if (rentalUnitResponse != null && !rentalUnitResponse.getBaseResponse().hastErrors()){
 
             var entity = iBookingMapper.toEntity(dto);
             entity.setDeleted(Boolean.FALSE);
@@ -46,9 +55,14 @@ public class BookingServiceImpl implements IBookingService {
 
                 if (savedStay != null && !savedStay.hastErrors()){
 
-                    setTotalAmount(dto);
+                    if (!bookingWithServices)
+                        setTotalAmount(dto);
+                    else
+                        setTotalAmount(dto, totalAmountOfServices.getTotalAmount());
 
-                    return savePaymentAndReturnBookingResponse(dto, entitySaved);
+                    var response = savePaymentAndReturnBookingResponse(dto, entitySaved);
+                    response.setServices(totalAmountOfServices);
+                    return response;
                 }else{
                     log.info("Error when trying to save the stay: {}", savedStay.errorMessage());
                     throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedStay.errorMessage()));
@@ -59,9 +73,34 @@ public class BookingServiceImpl implements IBookingService {
                 throw new IllegalArgumentException("Service communication error: " + e.getMessage());
             }
         }else{
-            log.info("Error when trying to validate rental unit status: {}", rentalUnitStatusErrorList.getBaseResponse().errorMessage());
-            throw new IllegalArgumentException("Service communication error: " + Arrays.toString(rentalUnitStatusErrorList.getBaseResponse().errorMessage()));
+            log.info("Error when trying to validate rental unit status: {}", rentalUnitResponse.getBaseResponse().errorMessage());
+            throw new IllegalArgumentException("Service communication error: " + Arrays.toString(rentalUnitResponse.getBaseResponse().errorMessage()));
         }
+    }
+
+    private ServiceTotalAmountDto getTotalAmountOfServices(RentalUnitComplexReponse rentalUnitResponse, BookingRequestDto dto) {
+        var totalAmount = 0.0;
+        List<ServicesPriceDto> servicesList = new ArrayList<>();
+        List<String> errorList = new ArrayList<>();
+        boolean serviceFound = false;
+
+        for (ServicesPriceDto serviceDTO: dto.getServices()) {
+            serviceFound = false;
+            var serviceId = serviceDTO.getId();
+
+            for (ServicesEntity serviceRU: rentalUnitResponse.getRentalUnit().getServicesList()) {
+                if (serviceRU.getId().equals(serviceDTO.getId())){
+                    totalAmount+=serviceRU.getPrice();
+                    serviceFound = true;
+                    servicesList.add(serviceDTO);
+                    break;
+                }
+            }
+            if(!serviceFound){
+                errorList.add("The service id " + serviceId + " was not added.");
+            }
+        }
+        return ServiceTotalAmountDto.builder().totalAmount(totalAmount).services(servicesList).hastErrors(errorList).build();
     }
 
     private BookingResponseDto savePaymentAndReturnBookingResponse(BookingRequestDto dto, BookingEntity entitySaved) {
@@ -103,6 +142,15 @@ public class BookingServiceImpl implements IBookingService {
         if (rateServiceResponse != null && !rateServiceResponse.getBaseResponse().hastErrors()){
             //Se establece el monto total del request
             dto.setTotalAmount(rateServiceResponse.getTotalAmount());
+        }else{
+            throw new IllegalArgumentException("Rate Service communication error: " + Arrays.toString(rateServiceResponse.getBaseResponse().errorMessage()));
+        }
+    }
+    private void setTotalAmount(BookingRequestDto dto, Double totalAmountOfServices) {
+        RateComplexResponse rateServiceResponse = getTotalAmount(dto);
+        if (rateServiceResponse != null && !rateServiceResponse.getBaseResponse().hastErrors()){
+            //Se establece el monto total del request
+            dto.setTotalAmount(rateServiceResponse.getTotalAmount() + totalAmountOfServices);
         }else{
             throw new IllegalArgumentException("Rate Service communication error: " + Arrays.toString(rateServiceResponse.getBaseResponse().errorMessage()));
         }

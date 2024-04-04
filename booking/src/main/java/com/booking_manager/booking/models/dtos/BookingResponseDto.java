@@ -23,6 +23,7 @@ public class BookingResponseDto {
     private Double totalAmount;
     private EStatus paymentStatus;
     private String couponCode;
+    private ServiceTotalAmountDto services;
     @Override
     public String toString() {
         return "RESERVATION ID: " + this.id + "\n" +

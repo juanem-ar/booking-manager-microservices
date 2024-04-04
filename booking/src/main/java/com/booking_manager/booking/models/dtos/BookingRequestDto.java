@@ -9,6 +9,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -47,6 +48,8 @@ public class BookingRequestDto {
     private Double partialPayment;
 
     private String code;
+
+    private List<ServicesPriceDto> services;
 
     public void validatePeriod(LocalDate checkIn, LocalDate checkOut) throws BadRequestException {
         if (checkIn.isAfter(checkOut))
