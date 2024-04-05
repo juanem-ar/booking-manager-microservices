@@ -5,11 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class PaymentComplexResponse {
-    private PaymentResponseDto object;
-    private BaseResponse baseResponse;
+@NoArgsConstructor
+public class StayResponseDto {
+    private Long id;
+    private Boolean deleted;
+    private LocalDate checkIn;
+    private LocalDate checkOut;
 }

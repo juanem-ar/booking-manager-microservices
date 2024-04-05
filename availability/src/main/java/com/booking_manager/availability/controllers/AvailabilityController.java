@@ -1,8 +1,6 @@
 package com.booking_manager.availability.controllers;
 
-import com.booking_manager.availability.models.dtos.BaseResponse;
-import com.booking_manager.availability.models.dtos.StayRequestDto;
-import com.booking_manager.availability.models.dtos.StayResponseDto;
+import com.booking_manager.availability.models.dtos.*;
 import com.booking_manager.availability.services.IStayService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,12 +30,10 @@ public class AvailabilityController {
     public ResponseEntity<List<StayResponseDto>> getAllStaysByRentalUnitId(@PathVariable Long id) throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(iStayService.getAllStaysByRentalUnitId(id));
     }
-    /* Codigo utilizado para corregir un error de persistencia doble
     @GetMapping("/booking/{id}")
-    public ResponseEntity<List<StayResponseDto>> getAllStaysByBookingId(@PathVariable Long id) throws Exception {
-        return ResponseEntity.status(HttpStatus.OK).body(iStayService.getAllStaysByBookingId(id));
+    public ResponseEntity<StayComplexResponseByGet> getStayByBookingId(@PathVariable Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(iStayService.getStayByBookingId(id));
     }
-    */
     @DeleteMapping("/{id}")
     public ResponseEntity<BaseResponse> deleteStayByRentalUnit(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iStayService.deleteStay(id));

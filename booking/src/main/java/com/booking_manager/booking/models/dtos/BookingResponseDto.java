@@ -15,8 +15,8 @@ public class BookingResponseDto {
     private Long unit;
     private Long businessUnit;
     private int amountOfPeople;
-    private LocalDate checkIn;
-    private LocalDate checkOut;
+    private LocalDate checkIn; //1
+    private LocalDate checkOut;//2
     private EStatus status;
     private Double costPerNight;
     private Double partialPayment;

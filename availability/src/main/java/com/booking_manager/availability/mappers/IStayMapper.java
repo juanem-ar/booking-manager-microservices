@@ -1,5 +1,6 @@
 package com.booking_manager.availability.mappers;
 
+import com.booking_manager.availability.models.dtos.SimpleStayResponseDto;
 import com.booking_manager.availability.models.dtos.StayRequestDto;
 import com.booking_manager.availability.models.dtos.StayResponseDto;
 import com.booking_manager.availability.models.entities.StayEntity;
@@ -15,4 +16,5 @@ import java.util.List;
 public interface IStayMapper {
     List<StayResponseDto> toStayResponseDtoList(List<StayEntity> staysList);
     StayEntity toStayEntity(StayRequestDto dto);
+    SimpleStayResponseDto toSimpleStayResponseDto(StayEntity stay);
 }

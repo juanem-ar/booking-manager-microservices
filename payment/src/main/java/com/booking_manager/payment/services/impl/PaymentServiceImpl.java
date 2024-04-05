@@ -33,7 +33,7 @@ public class PaymentServiceImpl implements IPaymentService {
     private final ICouponService iCouponService;
 
     @Override
-    public ComplexResponse createPayment(BookingRequestDto dto, Long bookingId) throws BadRequestException {
+    public ComplexResponseBySave createPayment(BookingRequestDto dto, Long bookingId) throws BadRequestException {
         var errorList = new ArrayList<String>();
 
         boolean existsCouponEntity = false;
@@ -76,8 +76,8 @@ public class PaymentServiceImpl implements IPaymentService {
         }catch (Exception e){
             errorList.add("Error when trying to save the payment. Payment Service is not available: "+ "\n" + e.getMessage());
         }
-        var resultWithErrors = ComplexResponse.builder().baseResponse(new BaseResponse(errorList.toArray(new String[0]))).build();
-        var resultWithoutErrors = ComplexResponse.builder().object(iPaymentMapper.toPaymentResponseDto(entity)).baseResponse(new BaseResponse(null)).build();
+        var resultWithErrors = ComplexResponseBySave.builder().baseResponse(new BaseResponse(errorList.toArray(new String[0]))).build();
+        var resultWithoutErrors = ComplexResponseBySave.builder().object(iPaymentMapper.toPaymentResponseDto(entity)).baseResponse(new BaseResponse(null)).build();
         return errorList.size() > 0 ?  resultWithErrors : resultWithoutErrors;
     }
 
@@ -104,9 +104,19 @@ public class PaymentServiceImpl implements IPaymentService {
     }
 
     @Override
-    public List<PaymentResponseDto> getAllPaymentsByBookingId(Long id) {
+    public PaymentComplexResponseByGet getAllPaymentsByBookingId(Long id) {
+        List<String> errorList = new ArrayList<>();
+
         var entityList = iPaymentRepository.findAllByBookingIdAndDeleted(id, false);
-        return iPaymentMapper.toPaymentResponseDtoList(entityList);
+
+        if(entityList.isEmpty())
+            errorList.add("Invalid booking id.");
+
+        var mappedEntity = iPaymentMapper.toPaymentResponseDtoList(entityList);
+        var resultWithoutErrors = PaymentComplexResponseByGet.builder().paymentList(mappedEntity).baseResponse(new BaseResponse(null)).build();
+        var resultWithErrors = PaymentComplexResponseByGet.builder().paymentList(new ArrayList<>()).baseResponse(new BaseResponse(errorList.toArray(new String[0]))).build();
+
+        return !errorList.isEmpty() ? resultWithErrors : resultWithoutErrors;
     }
 
     @Override

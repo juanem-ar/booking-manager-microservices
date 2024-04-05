@@ -1,8 +1,6 @@
 package com.booking_manager.availability.services;
 
-import com.booking_manager.availability.models.dtos.BaseResponse;
-import com.booking_manager.availability.models.dtos.StayResponseDto;
-import com.booking_manager.availability.models.dtos.StayRequestDto;
+import com.booking_manager.availability.models.dtos.*;
 
 import java.util.List;
 
@@ -12,5 +10,5 @@ public interface IStayService {
     BaseResponse checkAvailabilityByBookingService(StayRequestDto dto);
     BaseResponse deleteStay(Long id);
     BaseResponse deleteStayById(Long id);
-    List<StayResponseDto>getAllStaysByBookingId(Long id) throws Exception;
+    StayComplexResponseByGet getStayByBookingId(Long id);
 }

@@ -18,7 +18,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +39,6 @@ public class BookingServiceImpl implements IBookingService {
         if (dto.getServices() != null) {
             totalAmountOfServices = getTotalAmountOfServices(rentalUnitResponse, dto);
             bookingWithServices = true;
-            // TODO Aun no se agrego este valor al total de la reserva.
         }
 
         if (rentalUnitResponse != null && !rentalUnitResponse.getBaseResponse().hastErrors()){
@@ -48,7 +46,6 @@ public class BookingServiceImpl implements IBookingService {
             var entity = iBookingMapper.toEntity(dto);
             entity.setDeleted(Boolean.FALSE);
             entity.setStatus(EStatus.STATUS_IN_PROCESS);
-            //TODO PROBAR si se registran los id
             if (totalAmountOfServices != null) {
                 entity.setServiceIdList(totalAmountOfServices.getServiceIdList());
             }
@@ -63,7 +60,6 @@ public class BookingServiceImpl implements IBookingService {
                         setTotalAmount(dto);
                     else
                         setTotalAmount(dto, totalAmountOfServices.getTotalAmount());
-                    //TODO VALIDAR Q DIFERENCIE LAS RESERVAS CON SERVICIOS INCLUIDOS CON LAS QUE NO TIENEN SERVICIOS INCLUIDOS
 
                     var response = savePaymentAndReturnBookingResponse(dto, entitySaved);
                     response.setServices(totalAmountOfServices);
@@ -111,7 +107,7 @@ public class BookingServiceImpl implements IBookingService {
     }
 
     private BookingResponseDto savePaymentAndReturnBookingResponse(BookingRequestDto dto, BookingEntity entitySaved) {
-        PaymentComplexResponse savedPayment = savePayment(dto, entitySaved.getId());
+        PaymentComplexResponseBySave savedPayment = savePayment(dto, entitySaved.getId());
 
         if (savedPayment.getBaseResponse() != null && !savedPayment.getBaseResponse().hastErrors()) {
             var paymentResponse = savedPayment.getObject();
@@ -181,6 +177,15 @@ public class BookingServiceImpl implements IBookingService {
                 .block();
     }
 
+    private StayComplexResponseByGet getStayByBookingId(Long bookingId) {
+        return this.webClientBuilder.build()
+                .get()
+                .uri("lb://availability-service/api/availabilities/booking/" + bookingId)
+                .retrieve()
+                .bodyToMono(StayComplexResponseByGet.class)
+                .block();
+    }
+
     private RentalUnitComplexReponse getRentalUnitStatus(BookingRequestDto dto) {
         return this.webClientBuilder.build()
                 .get()
@@ -190,14 +195,22 @@ public class BookingServiceImpl implements IBookingService {
                 .block();
     }
 
-    private PaymentComplexResponse savePayment(BookingRequestDto dto, Long bookingId) {
-        //TODO debe viajar el valor total calculado en el servicio de rates
+    private PaymentComplexResponseBySave savePayment(BookingRequestDto dto, Long bookingId) {
         return this.webClientBuilder.build()
                 .post()
-                .uri("lb://payment-service/api/payments/bookings/"+ bookingId)
+                .uri("lb://payment-service/api/payments/booking/"+ bookingId)
                 .bodyValue(dto)
                 .retrieve()
-                .bodyToMono(PaymentComplexResponse.class)
+                .bodyToMono(PaymentComplexResponseBySave.class)
+                .block();
+    }
+
+    private PaymentComplexResponseByGet getPaymentListByBookingId(Long bookingId){
+        return this.webClientBuilder.build()
+                .get()
+                .uri("lb://payment-service/api/payments/booking/"+bookingId)
+                .retrieve()
+                .bodyToMono(PaymentComplexResponseByGet.class)
                 .block();
     }
 
@@ -218,9 +231,27 @@ public class BookingServiceImpl implements IBookingService {
     }
 
     @Override
-    public BookingResponseDtoList getBooking(Long id) throws BadRequestException {
+    public BookingFullResponseDto getBooking(Long id) throws BadRequestException {
         var entity = getBookingEntity(id);
-        return iBookingMapper.toBookingResponseDtoList(entity);
+
+        PaymentComplexResponseByGet paymentResponse = getPaymentListByBookingId(id);
+        if (paymentResponse.getBaseResponse() != null && !paymentResponse.getBaseResponse().hastErrors()){
+
+            StayComplexResponseByGet stayResponse = getStayByBookingId(id);
+
+            if (stayResponse.getBaseResponse() != null && !stayResponse.getBaseResponse().hastErrors()) {
+
+                var mappedEntity = iBookingMapper.toBookingResponseDtoList(entity);
+                return BookingFullResponseDto.builder().booking(mappedEntity).paymentList(paymentResponse.getPaymentList()).stay(stayResponse.getStay()).build();
+
+            }else{
+                log.info("Error when trying to get the stay: {}", Arrays.toString(stayResponse.getBaseResponse().errorMessage()));
+                throw new IllegalArgumentException("Availability Service communication error: " + Arrays.stream(stayResponse.getBaseResponse().errorMessage()));
+            }
+        }else{
+            log.info("Error when trying to get the payment: {}", Arrays.toString(paymentResponse.getBaseResponse().errorMessage()));
+            throw new IllegalArgumentException("Payment service communication error: " + Arrays.stream(paymentResponse.getBaseResponse().errorMessage()));
+        }
     }
 
     @Override

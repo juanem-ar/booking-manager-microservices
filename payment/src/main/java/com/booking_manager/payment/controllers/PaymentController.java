@@ -8,23 +8,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
 public class PaymentController {
     private final IPaymentService iPaymentService;
-    @PostMapping("/bookings/{id}")
-    public ResponseEntity<ComplexResponse> createPayment(@Validated @RequestBody BookingRequestDto dto, @PathVariable Long id) throws Exception {
+    @PostMapping("/booking/{id}")
+    public ResponseEntity<ComplexResponseBySave> createPayment(@Validated @RequestBody BookingRequestDto dto, @PathVariable Long id) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(iPaymentService.createPayment(dto, id));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<BaseResponse> deletePayment(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.CREATED).body(iPaymentService.deletePayment(id));
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<List<PaymentResponseDto>> getAllPaymentsByBookingId(@PathVariable Long id){
+    @GetMapping("/booking/{id}")
+    public ResponseEntity<PaymentComplexResponseByGet> getAllPaymentsByBookingId(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(iPaymentService.getAllPaymentsByBookingId(id));
     }
     @PostMapping("/new")

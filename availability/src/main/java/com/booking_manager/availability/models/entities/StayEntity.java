@@ -8,10 +8,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -27,12 +30,20 @@ public class StayEntity {
 
     private Boolean deleted = Boolean.FALSE;
 
+    @CreationTimestamp
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
+    @UpdateTimestamp
+    @Column(name = "update_date")
+    private LocalDateTime updateDate;
+
     @Column(name = "rental_unit_id")
     private Long rentalUnitId;
 
     @Column(name = "business_unit_id")
     private Long businessUnitId;
 
+    @Column(name = "booking_id")
     private Long bookingId;
 
     @NotNull(message = "Check-in date is required (YYYY-MM-dd).")

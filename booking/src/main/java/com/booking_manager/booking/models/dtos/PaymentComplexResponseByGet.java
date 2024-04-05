@@ -1,15 +1,17 @@
-package com.booking_manager.payment.models.dtos;
+package com.booking_manager.booking.models.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class ComplexResponse {
-    private PaymentResponseDto object;
+@NoArgsConstructor
+public class PaymentComplexResponseByGet {
+    private List<PaymentResponseDto> paymentList;
     private BaseResponse baseResponse;
 }

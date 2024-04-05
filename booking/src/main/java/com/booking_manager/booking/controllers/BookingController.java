@@ -1,5 +1,6 @@
 package com.booking_manager.booking.controllers;
 
+import com.booking_manager.booking.models.dtos.BookingFullResponseDto;
 import com.booking_manager.booking.models.dtos.BookingResponseDto;
 import com.booking_manager.booking.models.dtos.BookingRequestDto;
 import com.booking_manager.booking.models.dtos.BookingResponseDtoList;
@@ -28,7 +29,7 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(throwable.getMessage());
     }
     @GetMapping("/{id}")
-    public ResponseEntity<BookingResponseDtoList> getBooking(@PathVariable Long id) throws BadRequestException {
+    public ResponseEntity<BookingFullResponseDto> getBooking(@PathVariable Long id) throws BadRequestException {
         return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getBooking(id));
     }
     @GetMapping("/rental-unit/{id}")

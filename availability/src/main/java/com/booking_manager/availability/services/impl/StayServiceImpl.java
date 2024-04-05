@@ -1,9 +1,7 @@
 package com.booking_manager.availability.services.impl;
 
 import com.booking_manager.availability.mappers.IStayMapper;
-import com.booking_manager.availability.models.dtos.BaseResponse;
-import com.booking_manager.availability.models.dtos.StayResponseDto;
-import com.booking_manager.availability.models.dtos.StayRequestDto;
+import com.booking_manager.availability.models.dtos.*;
 import com.booking_manager.availability.models.entities.DeletedEntity;
 import com.booking_manager.availability.models.entities.StayEntity;
 import com.booking_manager.availability.repositories.IDeletedRepository;
@@ -50,12 +48,20 @@ public class StayServiceImpl implements IStayService {
             return new ArrayList<StayResponseDto>();
     }
     @Override
-    public List<StayResponseDto> getAllStaysByBookingId(Long id) throws Exception {
-        var staysList = iStayRepository.findAllByBookingIdAndDeleted(id, false);
-        if(!staysList.isEmpty())
-            return iStayMapper.toStayResponseDtoList(staysList);
-        else
-            return new ArrayList<StayResponseDto>();
+    public StayComplexResponseByGet getStayByBookingId(Long id){
+        List<String> errorList = new ArrayList<>();
+        StayComplexResponseByGet result;
+
+        var stay = iStayRepository.findByBookingIdAndDeleted(id, false);
+
+        if(stay != null){
+            var mappedEntity = iStayMapper.toSimpleStayResponseDto(stay);
+            result = StayComplexResponseByGet.builder().stay(mappedEntity).baseResponse(new BaseResponse(null)).build();
+        }else{
+            errorList.add("Invalid booking id.");
+            result = StayComplexResponseByGet.builder().stay(null).baseResponse(new BaseResponse(errorList.toArray(new String[0]))).build();
+        }
+        return result;
     }
     @Override
     public BaseResponse deleteStay(Long id) {
