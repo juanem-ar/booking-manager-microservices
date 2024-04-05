@@ -33,3 +33,8 @@ TRUST YOURSELF 🚀✨
 
 # Postman Collection
 [Link de descarga](https://drive.google.com/file/d/1t0sQ6xGKyK2lfS6ykPVeu45q2gMbskKZ/view?usp=sharing)
+
+
+# Arquitectura Actual
+
+<a href="https://ibb.co/8sz2vkr"><img src="https://i.ibb.co/Jtx26Zv/arquitectura.jpg" alt="arquitectura" border="0"></a>
