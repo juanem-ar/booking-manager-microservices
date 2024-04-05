@@ -21,6 +21,7 @@ public class PaymentResponseDto {
     private Double partialPayment;
     private int percent;
     private Double debit;
+    private Double finalTotalAmount;
     private Double totalAmount;
     private EStatus status;
     private String code;

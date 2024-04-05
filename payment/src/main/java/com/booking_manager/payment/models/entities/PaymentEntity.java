@@ -59,6 +59,8 @@ public class PaymentEntity {
     @Min(value = 0,message = "Invalid amount")
     private Double totalAmount;
 
+    private Double finalTotalAmount;
+
     @Enumerated(EnumType.STRING)
     private EStatus status;
 

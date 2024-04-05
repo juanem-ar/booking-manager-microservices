@@ -61,7 +61,8 @@ public class PaymentServiceImpl implements IPaymentService {
                 .deleted(Boolean.FALSE)
                 .debit(debit)
                 .costPerNight(costPerNight)
-                .totalAmount(totalAmount)
+                .totalAmount(dto.getTotalAmount())
+                .finalTotalAmount(totalAmount)
                 .build();
         try{
             if (existsCouponEntity)

@@ -22,6 +22,7 @@ public class BookingResponseDto {
     private Double partialPayment;
     private int percent;
     private Double debit;
+    private Double finalTotalAmount;
     private Double totalAmount;
     private EStatus paymentStatus;
     private String couponCode;

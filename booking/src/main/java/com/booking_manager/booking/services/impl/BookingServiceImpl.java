@@ -134,6 +134,7 @@ public class BookingServiceImpl implements IBookingService {
         response.setPartialPayment(paymentResponse.getPartialPayment());
         response.setPercent(paymentResponse.getPercent());
         response.setDebit(paymentResponse.getDebit());
+        response.setFinalTotalAmount(paymentResponse.getFinalTotalAmount());
         response.setTotalAmount(paymentResponse.getTotalAmount());
         response.setPaymentStatus(paymentResponse.getStatus());
         response.setCouponCode(dto.getCode());
