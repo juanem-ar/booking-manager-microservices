@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,8 +20,8 @@ public class RentalUnitController {
     private final IRentalUnitService iRentalUnitService;
 
     @PostMapping
-    public ResponseEntity<RentalUnitResponseDto> saveRentalUnit(@Validated @RequestBody RentalUnitRequestDto dto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(iRentalUnitService.saveRentalUnit(dto));
+    public ResponseEntity<RentalUnitResponseDto> saveRentalUnit(@Validated @ModelAttribute RentalUnitRequestDto dto, @RequestParam(value = "files", required = false) List<MultipartFile> fileList) throws Exception {
+        return ResponseEntity.status(HttpStatus.CREATED).body(iRentalUnitService.saveRentalUnit(dto, fileList));
     }
     @GetMapping("/{id}")
     public ResponseEntity<RentalUnitResponseDto> getRentalUnit(@PathVariable Long id){

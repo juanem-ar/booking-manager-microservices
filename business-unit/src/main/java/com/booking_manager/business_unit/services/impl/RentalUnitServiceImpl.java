@@ -12,10 +12,12 @@ import com.booking_manager.business_unit.models.enums.EStatus;
 import com.booking_manager.business_unit.repositories.IBusinessUnitRepository;
 import com.booking_manager.business_unit.repositories.IDeletedRepository;
 import com.booking_manager.business_unit.repositories.IRentalUnitRepository;
+import com.booking_manager.business_unit.services.IFileService;
 import com.booking_manager.business_unit.services.IRentalUnitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +30,10 @@ public class RentalUnitServiceImpl implements IRentalUnitService {
     private final IRentalUnitMapper iRentalUnitMapper;
     private final IRentalUnitRepository iRentalUnitRepository;
     private final IDeletedRepository iDeletedRepository;
+    private final IFileService iFileService;
 
     @Override
-    public RentalUnitResponseDto saveRentalUnit(RentalUnitRequestDto dto) {
+    public RentalUnitResponseDto saveRentalUnit(RentalUnitRequestDto dto, List<MultipartFile> files) throws Exception {
         if (exists(dto)){
             var existsRentalUnitByName = iRentalUnitRepository.existsByNameAndBusinessUnitIdAndDeleted(dto.getName(),dto.getBusinessUnit(), false);
             if (!existsRentalUnitByName) {
@@ -41,6 +44,8 @@ public class RentalUnitServiceImpl implements IRentalUnitService {
                 entity.setBusinessUnit(businessUnitEntity);
                 var entitySaved = iRentalUnitRepository.save(entity);
                 log.info("Rental Unit Saved: {}", entitySaved);
+                if (files != null)
+                    iFileService.handleUploadFile(files, entitySaved.getId());
                 return iRentalUnitMapper.toRentalUnitResponseDto(entitySaved);
             }else{
                 throw new IllegalArgumentException("There is already a Rental Unit with this name");
