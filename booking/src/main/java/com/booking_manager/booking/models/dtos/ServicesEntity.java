@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ServicesEntity {
     private Long id;
+    @Builder.Default
     private Boolean deleted = Boolean.FALSE;
     private LocalDateTime creationDate;
     private LocalDateTime updateDate;

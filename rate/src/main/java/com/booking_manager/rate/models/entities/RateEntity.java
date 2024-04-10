@@ -25,7 +25,7 @@ public class RateEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Builder.Default
     private Boolean deleted = Boolean.FALSE;
 
     @CreationTimestamp

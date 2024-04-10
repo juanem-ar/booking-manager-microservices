@@ -69,7 +69,7 @@ public class BookingServiceImpl implements IBookingService {
                     if (!bookingWithServices)
                         setTotalAmount(dto);
                     else
-                        setTotalAmount(dto, totalAmountOfServices.getTotalAmount());
+                        setTotalAmount(dto, totalAmountOfServices != null ? totalAmountOfServices.getTotalAmount() : null);
 
                     var response = savePaymentAndReturnBookingResponse(dto, entitySaved);
                     response.setServices(totalAmountOfServices);
@@ -79,8 +79,8 @@ public class BookingServiceImpl implements IBookingService {
                     }
                     return response;
                 }else{
-                    log.info("Error when trying to save the stay: {}", savedStay.errorMessage());
-                    throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedStay.errorMessage()));
+                    log.info("Error when trying to save the stay: ", (Object[]) (savedStay != null ? savedStay.errorMessage() : new String[0]));
+                    throw new IllegalArgumentException("Service communication error: " + Arrays.toString(savedStay != null ? savedStay.errorMessage() : new String[0]));
                 }
             }catch (Exception e){
                 deleteStayByBookingId(entitySaved.getId());
@@ -88,8 +88,8 @@ public class BookingServiceImpl implements IBookingService {
                 throw new IllegalArgumentException("Service communication error: " + e.getMessage());
             }
         }else{
-            log.info("Error when trying to validate rental unit status: {}", rentalUnitResponse.getBaseResponse().errorMessage());
-            throw new IllegalArgumentException("Service communication error: " + Arrays.toString(rentalUnitResponse.getBaseResponse().errorMessage()));
+            log.info("Error when trying to validate rental unit status: {}", (Object[]) (rentalUnitResponse != null ? rentalUnitResponse.getBaseResponse().errorMessage() : new String[0]));
+            throw new IllegalArgumentException("Service communication error: " + Arrays.toString(rentalUnitResponse != null ? rentalUnitResponse.getBaseResponse().errorMessage() : new String[0]));
         }
     }
 
@@ -137,8 +137,8 @@ public class BookingServiceImpl implements IBookingService {
             log.info("Booking created: {}", entitySaved);
             return response;
         }else{
-            log.info("Error when trying to save the payment: {}", savedPayment.getBaseResponse().errorMessage());
-            throw new IllegalArgumentException("Service communication error: " + Arrays.stream(savedPayment.getBaseResponse().errorMessage()).iterator().toString().toString());
+            log.info("Error when trying to save the payment: {}", (Object[]) (savedPayment.getBaseResponse() != null ? savedPayment.getBaseResponse().errorMessage() : new String[0]));
+            throw new IllegalArgumentException("Service communication error: " + Arrays.stream(savedPayment.getBaseResponse().errorMessage()).iterator().toString());
         }
     }
 
@@ -163,7 +163,7 @@ public class BookingServiceImpl implements IBookingService {
             //Se establece el monto total del request
             dto.setTotalAmount(rateServiceResponse.getTotalAmount());
         }else{
-            throw new IllegalArgumentException("Rate Service communication error: " + Arrays.toString(rateServiceResponse.getBaseResponse().errorMessage()));
+            throw new IllegalArgumentException("Rate Service communication error: " + Arrays.toString(rateServiceResponse != null ? rateServiceResponse.getBaseResponse().errorMessage() : new String[0]));
         }
     }
     private void setTotalAmount(BookingRequestDto dto, Double totalAmountOfServices) {
@@ -172,7 +172,7 @@ public class BookingServiceImpl implements IBookingService {
             //Se establece el monto total del request
             dto.setTotalAmount(rateServiceResponse.getTotalAmount() + totalAmountOfServices);
         }else{
-            throw new IllegalArgumentException("Rate Service communication error: " + Arrays.toString(rateServiceResponse.getBaseResponse().errorMessage()));
+            throw new IllegalArgumentException("Rate Service communication error: " + Arrays.toString(rateServiceResponse != null ? rateServiceResponse.getBaseResponse().errorMessage() : new String[0]));
         }
     }
 
@@ -262,11 +262,11 @@ public class BookingServiceImpl implements IBookingService {
                 return BookingFullResponseDto.builder().booking(mappedEntity).paymentList(paymentResponse.getPaymentList()).stay(stayResponse.getStay()).build();
 
             }else{
-                log.info("Error when trying to get the stay: {}", Arrays.toString(stayResponse.getBaseResponse().errorMessage()));
+                log.info("Error when trying to get the stay: {}", Arrays.toString(stayResponse.getBaseResponse() != null ? stayResponse.getBaseResponse().errorMessage() : new String[0]));
                 throw new IllegalArgumentException("Availability Service communication error: " + Arrays.stream(stayResponse.getBaseResponse().errorMessage()));
             }
         }else{
-            log.info("Error when trying to get the payment: {}", Arrays.toString(paymentResponse.getBaseResponse().errorMessage()));
+            log.info("Error when trying to get the payment: {}", Arrays.toString(paymentResponse.getBaseResponse() != null ? paymentResponse.getBaseResponse().errorMessage() : new String[0]));
             throw new IllegalArgumentException("Payment service communication error: " + Arrays.stream(paymentResponse.getBaseResponse().errorMessage()));
         }
     }
@@ -303,12 +303,12 @@ public class BookingServiceImpl implements IBookingService {
                 log.info("The stay has been deleted.");
                 return "¡Booking has been deleted!";
             }else{
-                log.info("Error when trying to delete the payment: {}", deletePaymentMsg.errorMessage());
-                throw new IllegalArgumentException("Service communication error: " + Arrays.toString(deletePaymentMsg.errorMessage()));
+                log.info("Error when trying to delete the payment: {}", (Object[]) (deletePaymentMsg != null ? deletePaymentMsg.errorMessage() : new String[0]));
+                throw new IllegalArgumentException("Service communication error: " + Arrays.toString(deletePaymentMsg != null ? deletePaymentMsg.errorMessage() : new String[0]));
             }
         }else{
-            log.info("Error when trying to delete the stay: {}", deleteStayMsg.errorMessage());
-            throw new IllegalArgumentException("Service communication error: " + Arrays.toString(deleteStayMsg.errorMessage()));
+            log.info("Error when trying to delete the stay: {}", (Object[]) (deleteStayMsg != null ? deleteStayMsg.errorMessage() : new String[0]));
+            throw new IllegalArgumentException("Service communication error: " + Arrays.toString(deleteStayMsg != null ? deleteStayMsg.errorMessage() : new String[0]));
         }
     }
 

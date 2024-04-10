@@ -24,6 +24,7 @@ public class BusinessUnitEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Builder.Default
     private Boolean deleted = Boolean.FALSE;
     private String name;
     private String address;
