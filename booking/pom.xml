@@ -6,10 +6,9 @@
 		<groupId>com.booking-manager</groupId>
 		<artifactId>api</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
-		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>booking</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>booking</name>
 	<description>Booking Microservice</description>
 	<properties>
