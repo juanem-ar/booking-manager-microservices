@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.bookingmanager.api_gateway.ApiGatewayApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 19.56 s -- in com.bookingmanager.api_gateway.ApiGatewayApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.91 s -- in com.bookingmanager.api_gateway.ApiGatewayApplicationTests
