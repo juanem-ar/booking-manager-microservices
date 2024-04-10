@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.booking_manager.booking.BookingApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 29.00 s -- in com.booking_manager.booking.BookingApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 30.21 s -- in com.booking_manager.booking.BookingApplicationTests
