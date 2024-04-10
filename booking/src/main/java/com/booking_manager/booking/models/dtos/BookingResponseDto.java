@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -17,6 +18,8 @@ public class BookingResponseDto {
     private int amountOfPeople;
     private LocalDate checkIn; //1
     private LocalDate checkOut;//2
+    private LocalDateTime realCheckIn;
+    private LocalDateTime realCheckOut;
     private EStatus status;
     private Double costPerNight;
     private Double partialPayment;
@@ -28,6 +31,7 @@ public class BookingResponseDto {
     private String couponCode;
     private List<Long> serviceIdList;
     private ServiceTotalAmountDto services;
+    private GuestResponseDto guest;
     @Override
     public String toString() {
         return "RESERVATION ID: " + this.id + "\n" +

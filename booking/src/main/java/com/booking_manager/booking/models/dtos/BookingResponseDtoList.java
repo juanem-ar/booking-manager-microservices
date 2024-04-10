@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -15,6 +16,9 @@ public class BookingResponseDtoList {
     private Long unit;
     private Long businessUnit;
     private int amountOfPeople;
+    private LocalDateTime realCheckIn;
+    private LocalDateTime realCheckOut;
     private List<Long> serviceIdList;
     private EStatus status;
+    private GuestResponseDto guest;
 }

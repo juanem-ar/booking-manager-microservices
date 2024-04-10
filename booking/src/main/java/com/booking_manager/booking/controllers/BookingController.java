@@ -1,9 +1,6 @@
 package com.booking_manager.booking.controllers;
 
-import com.booking_manager.booking.models.dtos.BookingFullResponseDto;
-import com.booking_manager.booking.models.dtos.BookingResponseDto;
-import com.booking_manager.booking.models.dtos.BookingRequestDto;
-import com.booking_manager.booking.models.dtos.BookingResponseDtoList;
+import com.booking_manager.booking.models.dtos.*;
 import com.booking_manager.booking.services.IBookingService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +25,12 @@ public class BookingController {
     public ResponseEntity<String> createBookingFallback(Throwable throwable){
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(throwable.getMessage());
     }
+    @PostMapping("/{id}")
+    public ResponseEntity<BookingFullResponseDto> addGuestToBookingByBookingId(@Validated @RequestBody GuestRequestDto dto, @PathVariable Long id) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(iBookingService.addGuestToBookingByBookingId(dto,id));
+    }
     @GetMapping("/{id}")
+    @CircuitBreaker(name = "booking-service", fallbackMethod = "createBookingFallback")
     public ResponseEntity<BookingFullResponseDto> getBooking(@PathVariable Long id) throws BadRequestException {
         return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getBooking(id));
     }
@@ -37,6 +39,7 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.OK).body(iBookingService.getAllBookingByRentalUnit(id));
     }
     @DeleteMapping("/{id}")
+    @CircuitBreaker(name = "booking-service", fallbackMethod = "createBookingFallback")
     public ResponseEntity<String> deleteBooking(@PathVariable Long id) throws BadRequestException {
         return ResponseEntity.status(HttpStatus.OK).body(iBookingService.deleteBooking(id));
     }

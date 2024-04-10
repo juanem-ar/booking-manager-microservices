@@ -36,11 +36,7 @@ public class BookingRequestDto {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Future
     private LocalDate checkOut;
-/*
-    @NotNull(message = "Cost per night is required")
-    @Min(0)
-    private Double costPerNight;
-*/
+
     private Double totalAmount;
 
     @NotNull(message = "Partial payment is required")
@@ -50,6 +46,8 @@ public class BookingRequestDto {
     private String code;
 
     private List<ServicesPriceDto> services;
+
+    private GuestRequestDto guest;
 
     public void validatePeriod(LocalDate checkIn, LocalDate checkOut) throws BadRequestException {
         if (checkIn.isAfter(checkOut))

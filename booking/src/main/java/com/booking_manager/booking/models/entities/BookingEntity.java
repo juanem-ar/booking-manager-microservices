@@ -37,6 +37,9 @@ public class BookingEntity {
     private Long unit;
     private Long businessUnit;
 
+    private LocalDateTime realCheckIn;
+    private LocalDateTime realCheckOut;
+
     @ElementCollection
     private List<Long> serviceIdList;
 
@@ -48,4 +51,8 @@ public class BookingEntity {
 
     @Enumerated(EnumType.STRING)
     private EStatus status;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "booking")
+    private GuestEntity guest;
 }

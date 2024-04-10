@@ -4,10 +4,13 @@ import com.booking_manager.booking.mappers.IBookingMapper;
 import com.booking_manager.booking.models.dtos.*;
 import com.booking_manager.booking.models.entities.BookingEntity;
 import com.booking_manager.booking.models.entities.DeletedEntity;
+import com.booking_manager.booking.models.entities.GuestEntity;
 import com.booking_manager.booking.models.enums.EStatus;
+import com.booking_manager.booking.models.enums.EType;
 import com.booking_manager.booking.repositories.IBookingRepository;
 import com.booking_manager.booking.repositories.IDeletedRepository;
 import com.booking_manager.booking.services.IBookingService;
+import com.booking_manager.booking.services.IGuestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -28,12 +31,14 @@ public class BookingServiceImpl implements IBookingService {
     private final IBookingMapper iBookingMapper;
     private final WebClient.Builder webClientBuilder;
     private final IDeletedRepository iDeletedRepository;
+    private final IGuestService iGuestService;
 
     @Override
     public BookingResponseDto createBooking(BookingRequestDto dto) throws Exception {
         dto.validatePeriod(dto.getCheckIn(),dto.getCheckOut());
         RentalUnitComplexReponse rentalUnitResponse = getRentalUnitStatus(dto);
         ServiceTotalAmountDto totalAmountOfServices = null;
+        GuestEntity guestEntity = null;
         boolean bookingWithServices = false;
 
         if (dto.getServices() != null) {
@@ -46,6 +51,10 @@ public class BookingServiceImpl implements IBookingService {
             var entity = iBookingMapper.toEntity(dto);
             entity.setDeleted(Boolean.FALSE);
             entity.setStatus(EStatus.STATUS_IN_PROCESS);
+            if(dto.getGuest() != null){
+                guestEntity = iGuestService.addGuest(dto.getGuest());
+                entity.setGuest(guestEntity);
+            }
             if (totalAmountOfServices != null) {
                 entity.setServiceIdList(totalAmountOfServices.getServiceIdList());
             }
@@ -63,6 +72,15 @@ public class BookingServiceImpl implements IBookingService {
 
                     var response = savePaymentAndReturnBookingResponse(dto, entitySaved);
                     response.setServices(totalAmountOfServices);
+
+                    //TODO implementar envio de emails:
+                    // Ingreso y Egreso. Se deberá informar al huésped, el horario de ingreso (Check-in), egreso (Check-out) y la política referente al servicio de desayuno.
+                    // Llevar registro manual, en un libro foliado y rubricado o electrónico, consignando entradas y salidas, donde deberá quedar asentada toda persona que ingrese al establecimiento, en calidad de pasajero, indicando: apellido y nombre, nacionalidad, procedencia, domicilio, estado civil, documento de curso legal vigente que acredite su identidad, fecha y hora de ingreso y de egreso
+                    //  Art. 13.- Tarjeta de registro. Se deberá confeccionar por duplicado una tarjeta de registro en la que conste el nombre, la categoría e identificación del establecimiento, fechas de entrada y salida, numero/s de habitación/es en la cual se alojó, datos personales y firma del huésped. Dicha tarjeta, tiene valor de prueba a efectos administrativos. Una copia debe ser entregada al huésped y la otra se debe conservar en el establecimiento, a fin de ser presentado ante requerimiento de la autoridad competente durante el tiempo que la reglamentación determine
+                    if (guestEntity != null){
+                        var guestResponse = iGuestService.addToBookingList(guestEntity.getId(),entitySaved);
+                        response.setGuest(guestResponse);
+                    }
                     return response;
                 }else{
                     log.info("Error when trying to save the stay: {}", savedStay.errorMessage());
@@ -78,6 +96,8 @@ public class BookingServiceImpl implements IBookingService {
             throw new IllegalArgumentException("Service communication error: " + Arrays.toString(rentalUnitResponse.getBaseResponse().errorMessage()));
         }
     }
+
+    //TODO Crear metodo para guardar checkInReal y checkOut real con los datos del guest y la reserva
 
     private ServiceTotalAmountDto getTotalAmountOfServices(RentalUnitComplexReponse rentalUnitResponse, BookingRequestDto dto) {
         var totalAmount = 0.0;
@@ -114,7 +134,6 @@ public class BookingServiceImpl implements IBookingService {
 
             //TODO EL ESTADO ACEPTADO DEBE SER ESTABLECIDO CUANDO SE CONFIRMA EL PAGO
             entitySaved.setStatus(EStatus.STATUS_ACCEPTED);
-            //todo aca salia "entity" como parametro
             iBookingRepository.save(entitySaved);
             var response = settingAdittionalPropertiesToBookingResponseDto(dto, entitySaved, paymentResponse);
             //TODO implementar envios de emails con kafka
@@ -277,7 +296,8 @@ public class BookingServiceImpl implements IBookingService {
                     entity.setStatus(EStatus.STATUS_CANCELLED);
                 var entitySaved = iBookingRepository.save(entity);
                 var entityDeleted = DeletedEntity.builder()
-                        .idBooking(entitySaved.getId())
+                        .idEntity(entitySaved.getId())
+                        .type(EType.BOOKING)
                         .build();
                 var savedDeletedEntity = iDeletedRepository.save(entityDeleted);
 
@@ -293,6 +313,16 @@ public class BookingServiceImpl implements IBookingService {
             log.info("Error when trying to delete the stay: {}", deleteStayMsg.errorMessage());
             throw new IllegalArgumentException("Service communication error: " + Arrays.toString(deleteStayMsg.errorMessage()));
         }
+    }
+
+    @Override
+    public BookingFullResponseDto addGuestToBookingByBookingId(GuestRequestDto dto, Long id) throws BadRequestException {
+        var entity = getBookingEntity(id);
+        var guestEntity = iGuestService.addGuest(dto);
+        iGuestService.addToBookingList(guestEntity.getId(), entity);
+        entity.setGuest(guestEntity);
+        var savedEntity = iBookingRepository.save(entity);
+        return getBooking(savedEntity.getId());
     }
 
     private BaseResponse deleteStayByBookingId(Long id) {

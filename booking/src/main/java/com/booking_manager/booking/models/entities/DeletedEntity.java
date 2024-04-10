@@ -1,5 +1,6 @@
 package com.booking_manager.booking.models.entities;
 
+import com.booking_manager.booking.models.enums.EType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +22,8 @@ public class DeletedEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long idBooking;
+    private Long idEntity;
+    private EType type;
     @CreationTimestamp
     private LocalDateTime creationDate;
     @UpdateTimestamp
