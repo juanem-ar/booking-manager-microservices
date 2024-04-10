@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.booking_manager.business_unit.BusinessUnitApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 32.58 s -- in com.booking_manager.business_unit.BusinessUnitApplicationTests
