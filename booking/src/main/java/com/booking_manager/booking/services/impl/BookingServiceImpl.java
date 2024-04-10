@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,11 +73,6 @@ public class BookingServiceImpl implements IBookingService {
 
                     var response = savePaymentAndReturnBookingResponse(dto, entitySaved);
                     response.setServices(totalAmountOfServices);
-
-                    //TODO implementar envio de emails:
-                    // Ingreso y Egreso. Se deberá informar al huésped, el horario de ingreso (Check-in), egreso (Check-out) y la política referente al servicio de desayuno.
-                    // Llevar registro manual, en un libro foliado y rubricado o electrónico, consignando entradas y salidas, donde deberá quedar asentada toda persona que ingrese al establecimiento, en calidad de pasajero, indicando: apellido y nombre, nacionalidad, procedencia, domicilio, estado civil, documento de curso legal vigente que acredite su identidad, fecha y hora de ingreso y de egreso
-                    //  Art. 13.- Tarjeta de registro. Se deberá confeccionar por duplicado una tarjeta de registro en la que conste el nombre, la categoría e identificación del establecimiento, fechas de entrada y salida, numero/s de habitación/es en la cual se alojó, datos personales y firma del huésped. Dicha tarjeta, tiene valor de prueba a efectos administrativos. Una copia debe ser entregada al huésped y la otra se debe conservar en el establecimiento, a fin de ser presentado ante requerimiento de la autoridad competente durante el tiempo que la reglamentación determine
                     if (guestEntity != null){
                         var guestResponse = iGuestService.addToBookingList(guestEntity.getId(),entitySaved);
                         response.setGuest(guestResponse);
@@ -96,8 +92,6 @@ public class BookingServiceImpl implements IBookingService {
             throw new IllegalArgumentException("Service communication error: " + Arrays.toString(rentalUnitResponse.getBaseResponse().errorMessage()));
         }
     }
-
-    //TODO Crear metodo para guardar checkInReal y checkOut real con los datos del guest y la reserva
 
     private ServiceTotalAmountDto getTotalAmountOfServices(RentalUnitComplexReponse rentalUnitResponse, BookingRequestDto dto) {
         var totalAmount = 0.0;
@@ -137,6 +131,9 @@ public class BookingServiceImpl implements IBookingService {
             iBookingRepository.save(entitySaved);
             var response = settingAdittionalPropertiesToBookingResponseDto(dto, entitySaved, paymentResponse);
             //TODO implementar envios de emails con kafka
+            //  Ingreso y Egreso. Se deberá informar al huésped, el horario de ingreso (Check-in), egreso (Check-out) y la política referente al servicio de desayuno.
+            // Llevar registro manual, en un libro foliado y rubricado o electrónico, consignando entradas y salidas, donde deberá quedar asentada toda persona que ingrese al establecimiento, en calidad de pasajero, indicando: apellido y nombre, nacionalidad, procedencia, domicilio, estado civil, documento de curso legal vigente que acredite su identidad, fecha y hora de ingreso y de egreso
+            //  Art. 13.- Tarjeta de registro. Se deberá confeccionar por duplicado una tarjeta de registro en la que conste el nombre, la categoría e identificación del establecimiento, fechas de entrada y salida, numero/s de habitación/es en la cual se alojó, datos personales y firma del huésped. Dicha tarjeta, tiene valor de prueba a efectos administrativos. Una copia debe ser entregada al huésped y la otra se debe conservar en el establecimiento, a fin de ser presentado ante requerimiento de la autoridad competente durante el tiempo que la reglamentación determine
             log.info("Booking created: {}", entitySaved);
             return response;
         }else{
@@ -324,6 +321,29 @@ public class BookingServiceImpl implements IBookingService {
         var savedEntity = iBookingRepository.save(entity);
         return getBooking(savedEntity.getId());
     }
+
+    @Override
+    public String setRealCheckIn(Long id) throws BadRequestException {
+        saveRealDateTime(id, true);
+        return "Real Check-in has been set up";
+    }
+    @Override
+    public String setRealCheckOut(Long id) throws BadRequestException {
+        saveRealDateTime(id, false);
+        return "Real Check-out has been set up";
+    }
+
+    private void saveRealDateTime(Long id, boolean isCheckIn) throws BadRequestException {
+        LocalDateTime now = LocalDateTime.now();
+        var entity = getBookingEntity(id);
+        if (isCheckIn)
+            entity.setRealCheckIn(now);
+        else
+            entity.setRealCheckOut(now);
+        iBookingRepository.save(entity);
+    }
+
+
 
     private BaseResponse deleteStayByBookingId(Long id) {
         return this.webClientBuilder.build()

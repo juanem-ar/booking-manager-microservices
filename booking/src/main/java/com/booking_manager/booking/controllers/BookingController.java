@@ -29,6 +29,14 @@ public class BookingController {
     public ResponseEntity<BookingFullResponseDto> addGuestToBookingByBookingId(@Validated @RequestBody GuestRequestDto dto, @PathVariable Long id) throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(iBookingService.addGuestToBookingByBookingId(dto,id));
     }
+    @PutMapping("/{id}/real-check-in")
+    public ResponseEntity<String> setRealCheckIn(@PathVariable Long id) throws Exception {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(iBookingService.setRealCheckIn(id));
+    }
+    @PutMapping("/{id}/real-check-out")
+    public ResponseEntity<String> setRealCheckOut(@PathVariable Long id) throws Exception {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(iBookingService.setRealCheckOut(id));
+    }
     @GetMapping("/{id}")
     @CircuitBreaker(name = "booking-service", fallbackMethod = "createBookingFallback")
     public ResponseEntity<BookingFullResponseDto> getBooking(@PathVariable Long id) throws BadRequestException {

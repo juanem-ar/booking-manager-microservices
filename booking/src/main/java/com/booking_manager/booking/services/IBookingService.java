@@ -11,4 +11,6 @@ public interface IBookingService {
     List<BookingResponseDtoList> getAllBookingByRentalUnit(Long id);
     String deleteBooking(Long id) throws BadRequestException;
     BookingFullResponseDto addGuestToBookingByBookingId(GuestRequestDto dto, Long id) throws BadRequestException;
+    String setRealCheckIn(Long id) throws BadRequestException;
+    String setRealCheckOut(Long id) throws BadRequestException;
 }
