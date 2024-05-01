@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.booking_manager.notification.NotificationApplicationTests
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 13.82 s -- in com.booking_manager.notification.NotificationApplicationTests

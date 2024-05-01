@@ -12,6 +12,8 @@ services:
       POSTGRES_PASSWORD: root
     ports:
       - 5431:5431
+    networks:
+      - booking-cloud
     expose:
       - 5431
     command: -p 5431
@@ -21,6 +23,8 @@ services:
     container_name: db-business
     image: postgres:latest
     restart: unless-stopped
+    networks:
+      - booking-cloud
     environment:
       POSTGRES_DB: ms_business
       POSTGRES_USER: Juanem
@@ -36,6 +40,8 @@ services:
     container_name: db-availabilities
     image: postgres:latest
     restart: unless-stopped
+    networks:
+      - booking-cloud
     environment:
       POSTGRES_DB: ms_availabilities
       POSTGRES_USER: Juanem
@@ -50,6 +56,8 @@ services:
   zookeeper:
     container_name: zookeeper
     image: confluentinc/cp-zookeeper:latest
+    networks:
+      - booking-cloud
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -59,6 +67,8 @@ services:
     container_name: db-bookings
     image: mysql:latest
     restart: unless-stopped
+    networks:
+      - booking-cloud
     environment:
       MYSQL_DATABASE: ms_bookings
       MYSQL_USER: Juanem
@@ -74,6 +84,8 @@ services:
     container_name: db-payments
     image: mysql:latest
     restart: unless-stopped
+    networks:
+      - booking-cloud
     environment:
       MYSQL_DATABASE: ms_payments
       MYSQL_USER: Juanem
@@ -94,6 +106,8 @@ services:
       - "9092:9092"
     expose:
       - 9092
+    networks:
+      - booking-cloud
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -109,3 +123,10 @@ services:
     image: openzipkin/zipkin:latest
     ports:
       - "9411:9411"
+    networks:
+      - booking-cloud
+
+
+networks:
+  booking-cloud:
+    driver: bridge

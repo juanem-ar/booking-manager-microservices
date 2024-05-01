@@ -30,12 +30,6 @@
 		<!-- SECURITY END-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
@@ -44,30 +38,6 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- DEPENDENCIAS DE MONITOREO DE SERVICIOS Y SEGUIMIENTO DE LLAMADAS -->
-		<!-- TRACING BEGIN -->
-		<!-- permite integrar micrometer con bread, una biblioteca de rastreo distribuido utilizada para implementar la especificacion de openTracing y zinpkin. Permite que las trazas generadas sean utilizadas por sistemas de rastreo como zipking. esto permite mayor visibilidad de como se propagan las solicitudes a travez de la aplicacion-->
-		<dependency>
-			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-tracing-bridge-brave</artifactId>
-		</dependency>
-		<!-- Sistema de monitoreo y alerta de codigo (ABIERTO) -->
-		<dependency>
-			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-registry-prometheus</artifactId>
-		</dependency>
-		<!-- biblioteca que permite que las trazas generadas por brave, se envien y reporten al servidor de zipkin. Este ultimo tambien las va a almacenar.-->
-		<dependency>
-			<groupId>io.zipkin.reporter2</groupId>
-			<artifactId>zipkin-reporter-brave</artifactId>
-			<version>2.16.4</version>
-		</dependency>
-		<!-- TRACING END -->
 	</dependencies>
 	<build>
 		<plugins>
