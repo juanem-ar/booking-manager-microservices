@@ -1,132 +1,171 @@
 version: '3'
 services:
-
-  ##POSTGRESQL DATABASE FOR RATES
-  db-rates:
-    container_name: db-rates
-    image: postgres:latest
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ms_rates
-      POSTGRES_USER: Juanem
-      POSTGRES_PASSWORD: root
+  config-server:
+    container_name: config-server
+    image: config-server:v1
+    restart: always
     ports:
-      - 5431:5431
+      - "8888:8888"
     networks:
       - booking-cloud
     expose:
-      - 5431
-    command: -p 5431
-
-  ##POSTGRESQL DATABASE FOR BUSINESS
-  db-business-units:
-    container_name: db-business
-    image: postgres:latest
-    restart: unless-stopped
+      - 8888
+    depends_on:
+      - eureka-server
+  eureka-server:
+    container_name: eureka-server
+    restart: always
+    image: eureka-server:v1
+    ports:
+      - "8761:8761"
     networks:
       - booking-cloud
-    environment:
-      POSTGRES_DB: ms_business
-      POSTGRES_USER: Juanem
-      POSTGRES_PASSWORD: root
-    ports:
-      - 5432:5432
     expose:
-      - 5432
-    command: -p 5432
-
-  ##POSTGRESQL DATABASE FOR AVAILABILITY
+      - 8761
+  api-gateway:
+    container_name: api-gateway
+    restart: always
+    image: api-gateway:v1
+    ports:
+      - "8080:8080"
+    networks:
+      - booking-cloud
+    depends_on:
+      - config-server
+      - eureka-server
   db-availabilities:
     container_name: db-availabilities
     image: postgres:latest
-    restart: unless-stopped
+    restart: always
     networks:
+      - postgres
       - booking-cloud
     environment:
       POSTGRES_DB: ms_availabilities
-      POSTGRES_USER: Juanem
-      POSTGRES_PASSWORD: root
-    ports:
-      - 5433:5433
-    expose:
-      - 5433
-    command: -p 5433
-
-  ##ZOOKEEPER
-  zookeeper:
-    container_name: zookeeper
-    image: confluentinc/cp-zookeeper:latest
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    depends_on:
+      - config-server
+      - eureka-server
+  availability-service:
+    container_name: availability-service
+    image: availability:v1
+    restart: always
     networks:
+      - postgres
       - booking-cloud
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-
-  ##MYSQL DATABASE FOR BOOKINGS
+    depends_on:
+      - config-server
+      - eureka-server
+      - db-availabilities
   db-bookings:
     container_name: db-bookings
     image: mysql:latest
-    restart: unless-stopped
+    restart: always
+    ports:
+      - "3306:3306"
     networks:
+      - mysql
       - booking-cloud
     environment:
       MYSQL_DATABASE: ms_bookings
       MYSQL_USER: Juanem
       MYSQL_PASSWORD: root
       MYSQL_ROOT_PASSWORD: root
-    ports:
-      - 3306:3306
-    expose:
-      - 3306
-
-  ##MYSQL DATABASE FOR PAYMENTS
+    depends_on:
+      - config-server
+      - eureka-server
+  booking-service:
+    container_name: booking-service
+    image: booking:v1
+    restart: always
+    networks:
+      - mysql
+      - booking-cloud
+    depends_on:
+      - config-server
+      - eureka-server
+      - db-bookings
+  db-bu:
+    container_name: db-bu
+    image: postgres:latest
+    restart: always
+    networks:
+      - postgres
+      - booking-cloud
+    environment:
+      POSTGRES_DB: ms_business
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    depends_on:
+      - config-server
+      - eureka-server
+  business-service:
+    container_name: business-service
+    image: business:v1
+    restart: always
+    networks:
+      - postgres
+      - booking-cloud
+    depends_on:
+      - config-server
+      - eureka-server
+      - db-bu
   db-payments:
     container_name: db-payments
     image: mysql:latest
-    restart: unless-stopped
+    restart: always
     networks:
+      - mysql
       - booking-cloud
     environment:
       MYSQL_DATABASE: ms_payments
       MYSQL_USER: Juanem
       MYSQL_PASSWORD: root
       MYSQL_ROOT_PASSWORD: root
-    ports:
-      - 3307:3306
-    expose:
-      - 3307
-
-  ##KAFKA:
-  kafka:
-    container_name: kafka
-    image: confluentinc/cp-kafka:latest
     depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-    expose:
-      - 9092
+      - config-server
+      - eureka-server
+  payment-service:
+    container_name: payment-service
+    image: payment:v1
+    restart: always
     networks:
+      - mysql
+      - booking-cloud
+    depends_on:
+      - config-server
+      - eureka-server
+      - db-payments
+  db-rates:
+    container_name: db-rates
+    image: postgres:latest
+    restart: always
+    networks:
+      - postgres
       - booking-cloud
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-
-  ##ZIPKING
-  zipkin:
-    container_name: zipkin
-    image: openzipkin/zipkin:latest
-    ports:
-      - "9411:9411"
+      POSTGRES_DB: ms_rates
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    depends_on:
+      - config-server
+      - eureka-server
+  rate-service:
+    container_name: rate-service
+    image: rate:v1
+    restart: always
     networks:
+      - postgres
       - booking-cloud
-
-
+    depends_on:
+      - config-server
+      - eureka-server
+      - db-rates
 networks:
+  postgres:
+    driver: bridge
+  mysql:
+    driver: bridge
   booking-cloud:
     driver: bridge

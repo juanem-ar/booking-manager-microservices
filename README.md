@@ -3,11 +3,25 @@
 TRUST YOURSELF 🚀✨
 
 # Docker 
-## run
-- docker compose up -p
+## run servers
+```
+docker-compose up eureka-server config-server
+```
+## run databases
+```
+docker-compose up db-availabilities db-bookings db-bu db-payments db-rates
+```
+## run services
+```
+docker-compose up booking-service business-service availability-service rate-service payment-service
+```
+```
+docker-compose up api-gateway
+```
 ## stop
-- docker stop $(docker ps -q)
-- docker rm $(docker ps -a -q)
+```
+docker-compose stop
+```
 
 # Check Microservices Health
 ```
